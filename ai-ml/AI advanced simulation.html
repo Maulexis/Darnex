@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced AI Railway Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e9ebee;
+            color: #1a202c;
+        }
+        canvas {
+            background-color: #d1e7dd; /* A pleasant, slightly green background for the canvas */
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .log-entry {
+            animation: fadeIn 0.5s ease-in-out;
+            border-bottom: 1px solid #4a5568;
+            padding: 4px 0;
+        }
+        .status-occupied { color: #f56565; }
+        .status-reserved { color: #f6ad55; }
+        .status-clear { color: #48bb78; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+<div class="w-full max-w-screen-2xl mx-auto">
+    <header class="text-center mb-6">
+        <h1 class="text-4xl font-bold text-gray-800">🚂 Advanced Railway Simulation</h1>
+        <p class="text-gray-600 mt-2 text-lg">Featuring Block Signalling, Physics, and AI Dispatching</p>
+    </header>
+
+    <main class="bg-white rounded-xl shadow-2xl p-4 md:p-6">
+        <canvas id="canvas"></canvas>
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div id="log-container" class="lg:col-span-2 bg-gray-800 text-white font-mono rounded-lg p-4 shadow-inner max-h-64 overflow-y-auto text-sm">
+                <h3 class="text-lg font-bold text-gray-300 border-b border-gray-600 mb-2 pb-2">Dispatcher Log</h3>
+                <div id="log"></div>
+            </div>
+            <div id="ai-status-panel" class="bg-gray-800 text-white font-mono rounded-lg p-4 shadow-inner max-h-64 overflow-y-auto text-sm">
+                <h3 class="text-lg font-bold text-gray-300 border-b border-gray-600 mb-2 pb-2">Block Status</h3>
+                <div id="block-status"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // --- SETUP & CONFIGURATION ---
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const logDiv = document.getElementById("log");
+    const blockStatusDiv = document.getElementById("block-status");
+
+    const TRACK_SPACING = 50;
+    const RAIL_SPACING = 8;
+    const TRAIN_LENGTH = 80;
+    const TRAIN_WIDTH = 16;
+    const SWITCH_LENGTH = 120;
+
+    let simulationState = {
+        blocks: {},
+        signals: {},
+        points: {},
+        trains: [],
+        routes: {}
+    };
+
+    // --- CLASSES (MODEL) ---
+
+    class Block {
+        constructor(id, trackId, start, end) {
+            this.id = id;
+            this.trackId = trackId;
+            this.start = start;
+            this.end = end;
+            this.state = 'CLEAR'; // CLEAR, OCCUPIED, RESERVED
+            this.occupiedBy = null;
+        }
+
+        draw() {
+            if (this.state === 'CLEAR') return;
+            const y = getTrackY(this.trackId);
+            ctx.fillStyle = this.state === 'OCCUPIED' ? 'rgba(255, 118, 118, 0.4)' : 'rgba(255, 199, 120, 0.4)';
+            ctx.fillRect(this.start, y - TRACK_SPACING / 2, this.end - this.start, TRACK_SPACING);
+        }
+    }
+
+    class Signal {
+        constructor(id, trackId, x) {
+            this.id = id;
+            this.trackId = trackId;
+            this.x = x;
+            this.y = getTrackY(trackId) - 25;
+            this.aspect = 'RED'; // RED, YELLOW, GREEN
+        }
+
+        updateAspect(blocks) {
+            const trackBlocks = Object.values(blocks)
+                .filter(b => b.trackId === this.trackId && b.start >= this.x)
+                .sort((a, b) => a.start - b.start);
+
+            if (trackBlocks.length === 0) {
+                this.aspect = 'GREEN';
+                return;
+            }
+
+            const block1 = trackBlocks[0];
+            const block2 = trackBlocks[1];
+
+            if (block1.state !== 'CLEAR') {
+                this.aspect = 'RED';
+            } else if (block2 && block2.state !== 'CLEAR') {
+                this.aspect = 'YELLOW';
+            } else {
+                this.aspect = 'GREEN';
+            }
+        }
+
+        draw() {
+            ctx.fillStyle = "#5a6a7a";
+            ctx.fillRect(this.x - 4, this.y - 45, 8, 45);
+            ctx.fillStyle = "#2d3748";
+            ctx.fillRect(this.x - 12, this.y - 50, 24, 42);
+
+            const aspectColors = { GREEN: "#2ecc71", YELLOW: "#f1c40f", RED: "#e74c3c" };
+            const darkColors = { GREEN: "#0f3d1b", YELLOW: "#5e5b0e", RED: "#4a0e0e" };
+
+            // Red Lamp
+            ctx.beginPath();
+            ctx.arc(this.x, this.y - 15, 6, 0, 2 * Math.PI);
+            ctx.fillStyle = this.aspect === 'RED' ? aspectColors.RED : darkColors.RED;
+            ctx.fill();
+
+            // Yellow Lamp
+            ctx.beginPath();
+            ctx.arc(this.x, this.y - 30, 6, 0, 2 * Math.PI);
+            ctx.fillStyle = this.aspect === 'YELLOW' ? aspectColors.YELLOW : darkColors.YELLOW;
+            ctx.fill();
+
+            // Green Lamp
+            ctx.beginPath();
+            ctx.arc(this.x, this.y - 45, 6, 0, 2 * Math.PI);
+            ctx.fillStyle = this.aspect === 'GREEN' ? aspectColors.GREEN : darkColors.GREEN;
+            ctx.fill();
+        }
+    }
+
+    class Train {
+        constructor(config) {
+            this.name = config.name;
+            this.color = config.color;
+            this.trackId = config.trackId;
+            this.x = config.x;
+            this.direction = config.direction; // 1 for right, -1 for left
+            this.priority = config.priority; // lower is higher priority
+
+            // Physics properties
+            this.mass = config.mass; // kg
+            this.maxTractiveEffort = config.maxTractiveEffort; // Newtons
+            this.maxBrakingForce = config.maxBrakingForce; // Newtons
+            this.velocity = 0; // m/s
+            this.maxSpeed = config.maxSpeed; // m/s
+
+            this.length = TRAIN_LENGTH;
+            this.currentBlock = null;
+            this.y = getTrackY(this.trackId);
+            this.targetTrackId = config.targetTrackId || null;
+
+            this.state = "RUNNING"; // RUNNING, BRAKING, STOPPED
+            this.aiState = "PROCEED"; // PROCEED, HOLD. AI command.
+        }
+
+        getBrakingDistance() {
+            // d = v^2 / (2 * a), a = F/m
+            const deceleration = this.maxBrakingForce / this.mass;
+            return (this.velocity * this.velocity) / (2 * deceleration);
+        }
+
+        update(deltaTime, signals, trains) {
+             const dt = deltaTime / 1000; // convert ms to s
+            
+            // --- AI & Decision Making ---
+            let targetSpeed = this.maxSpeed;
+            
+            // AI Dispatcher command has the highest priority
+            if (this.aiState === 'HOLD') {
+                this.state = "BRAKING";
+                targetSpeed = 0;
+                if (this.velocity < 0.1) {
+                    this.state = "STOPPED";
+                }
+            } else {
+                // If not holding, then obey signals
+                const nextSignal = signals
+                    .filter(s => s.trackId === this.trackId && (this.direction === 1 ? s.x > this.x : s.x < this.x))
+                    .sort((a, b) => this.direction * (a.x - b.x))[0];
+
+                if (nextSignal) {
+                    const distanceToSignal = Math.abs(nextSignal.x - this.x);
+                    if (nextSignal.aspect === 'RED') {
+                        if (distanceToSignal < this.getBrakingDistance() + 20) { // +20 buffer
+                            this.state = "BRAKING";
+                        }
+                        if (distanceToSignal < 10) {
+                           this.state = "STOPPED";
+                           targetSpeed = 0;
+                        }
+                    } else if (nextSignal.aspect === 'YELLOW') {
+                        targetSpeed = this.maxSpeed * 0.5;
+                         if (this.velocity > targetSpeed) {
+                            this.state = "BRAKING";
+                        } else {
+                            this.state = "RUNNING";
+                        }
+                    } else {
+                        this.state = "RUNNING";
+                    }
+                } else {
+                     this.state = "RUNNING";
+                }
+            }
+
+            // --- Physics Update ---
+            let force = 0;
+            if (this.state === "STOPPED") {
+                force = -this.velocity * this.mass / dt; // Force to bring to a hard stop
+            } else if (this.state === "BRAKING" || this.velocity > targetSpeed) {
+                 force = -this.maxBrakingForce;
+            } else if (this.velocity < targetSpeed) {
+                force = this.maxTractiveEffort;
+            }
+            
+            // Basic resistance
+            force -= this.velocity * 50; 
+
+            const acceleration = force / this.mass;
+            this.velocity += acceleration * dt;
+            this.velocity = Math.max(0, Math.min(this.velocity, this.maxSpeed));
+
+            this.x += this.velocity * 10 * dt * this.direction; // *10 for visual scaling
+
+            // Crossover logic
+            const sidingStart = canvas.width * 0.2, sidingEnd = canvas.width * 0.9;
+            if (this.targetTrackId && this.targetTrackId !== this.trackId) {
+                let t = 0;
+                let fromY = getTrackY(this.trackId);
+                let toY = getTrackY(this.targetTrackId);
+                let isSwitching = false;
+
+                if (this.x > sidingStart && this.x < sidingStart + SWITCH_LENGTH) {
+                    t = (this.x - sidingStart) / SWITCH_LENGTH;
+                    isSwitching = true;
+                } else if (this.x > sidingEnd - SWITCH_LENGTH && this.x < sidingEnd) {
+                     t = (this.x - (sidingEnd - SWITCH_LENGTH)) / SWITCH_LENGTH;
+                     isSwitching = true;
+                }
+                
+                if (isSwitching) {
+                    this.y = fromY + (toY - fromY) * (0.5 - 0.5 * Math.cos(t * Math.PI));
+                    if (t >= 1) {
+                        log(`${this.name} completed switch to ${this.targetTrackId}`);
+                        this.trackId = this.targetTrackId;
+                        this.targetTrackId = null;
+                        this.y = getTrackY(this.trackId);
+                    }
+                }
+            } else {
+                this.y = getTrackY(this.trackId);
+            }
+
+
+            // Respawn logic
+            if ((this.direction === 1 && this.x > canvas.width + this.length) || (this.direction === -1 && this.x < -this.length)) {
+                this.x = this.direction === 1 ? -this.length - 200 : canvas.width + 200;
+                this.velocity = 0;
+            }
+        }
+        
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.roundRect(this.x, this.y - TRAIN_WIDTH / 2, this.length, TRAIN_WIDTH, 4);
+            ctx.fill();
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 12px 'Inter'";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(this.name, this.x + this.length / 2, this.y);
+        }
+    }
+
+    // --- UTILITY & DRAWING FUNCTIONS (VIEW) ---
+    function setupCanvas() {
+        const w = canvas.parentElement.offsetWidth;
+        canvas.width = w;
+        canvas.height = Math.max(400, w * 9 / 16);
+    }
+
+    function getTrackY(trackId) {
+        const trackMap = { "UP1": 0, "UP2": 1, "SIDING": 2, "DOWN1": 3 };
+        return canvas.height / 2 + (trackMap[trackId] - 1.5) * TRACK_SPACING;
+    }
+
+    function drawRails(y, x_start, x_end) {
+        ctx.strokeStyle = "#4a4a4a"; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x_start, y - RAIL_SPACING / 2); ctx.lineTo(x_end, y - RAIL_SPACING / 2);
+        ctx.moveTo(x_start, y + RAIL_SPACING / 2); ctx.lineTo(x_end, y + RAIL_SPACING / 2);
+        ctx.stroke();
+    }
+
+    function drawSleepers(y, x_start, x_end) {
+        ctx.strokeStyle = "#8b5e3c"; ctx.lineWidth = 4;
+        for (let x = x_start; x < x_end; x += 20) {
+            ctx.beginPath(); ctx.moveTo(x, y - RAIL_SPACING); ctx.lineTo(x, y + RAIL_SPACING); ctx.stroke();
+        }
+    }
+    
+    function drawSwitch(from_y, to_y, x_start, x_end){
+        ctx.strokeStyle = "#8b5e3c"; ctx.lineWidth = 4;
+        for(let i=0; i<=1; i+=0.1){
+            const x = x_start + (x_end - x_start) * i;
+            const y_mid = from_y + (to_y - from_y) * (0.5 - 0.5 * Math.cos(i * Math.PI));
+            ctx.beginPath(); ctx.moveTo(x, y_mid - RAIL_SPACING); ctx.lineTo(x, y_mid + RAIL_SPACING); ctx.stroke();
+        }
+        ctx.strokeStyle = "#4a4a4a"; ctx.lineWidth = 2;
+        ctx.beginPath();
+        for(let o = -RAIL_SPACING/2; o <= RAIL_SPACING/2; o += RAIL_SPACING) {
+            ctx.moveTo(x_start, from_y + o);
+            ctx.bezierCurveTo(x_start + (x_end-x_start)/2, from_y + o, x_start + (x_end-x_start)/2, to_y+o, x_end, to_y+o);
+        }
+        ctx.stroke();
+    }
+
+
+    function drawFullTrackLayout() {
+        const sidingStart = canvas.width * 0.2;
+        const sidingEnd = canvas.width * 0.9;
+
+        // Main tracks
+        ["UP1", "UP2", "DOWN1"].forEach(trackId => {
+            const y = getTrackY(trackId);
+            drawSleepers(y, 0, canvas.width);
+            drawRails(y, 0, canvas.width);
+        });
+        
+        // Siding track
+        const sidingY = getTrackY("SIDING");
+        drawSleepers(sidingY, sidingStart, sidingEnd);
+        drawRails(sidingY, sidingStart + SWITCH_LENGTH, sidingEnd - SWITCH_LENGTH);
+
+        // Switches
+        drawSwitch(getTrackY("UP2"), sidingY, sidingStart, sidingStart + SWITCH_LENGTH);
+        drawSwitch(sidingY, getTrackY("UP2"), sidingEnd - SWITCH_LENGTH, sidingEnd);
+    }
+    
+    function log(msg) {
+        if(logDiv.children.length > 20) {
+            logDiv.removeChild(logDiv.lastChild);
+        }
+        const p = document.createElement("div");
+        p.className = "log-entry";
+        const time = new Date().toLocaleTimeString();
+        p.innerHTML = `<span class="text-gray-500">${time}</span> > ${msg}`;
+        logDiv.prepend(p);
+    }
+
+    // --- LOGIC & CONTROL (CONTROLLER) ---
+
+    function initializeSimulation() {
+        setupCanvas();
+        const W = canvas.width;
+        const sidingStart = W * 0.2, sidingEnd = W * 0.9;
+
+        // Define Blocks
+        const blockDefs = [
+            { id: 'UP1-1', track: 'UP1', start: 0, end: W },
+            { id: 'UP2-1', track: 'UP2', start: 0, end: sidingStart },
+            { id: 'UP2-2', track: 'UP2', start: sidingEnd, end: W },
+            { id: 'SIDING-MAIN', track: 'SIDING', start: sidingStart, end: sidingEnd },
+            { id: 'DOWN1-1', track: 'DOWN1', start: 0, end: W },
+        ];
+        blockDefs.forEach(b => simulationState.blocks[b.id] = new Block(b.id, b.track, b.start, b.end));
+
+        // Define Signals
+        const signalDefs = [
+            { id: 'S-UP1-A', track: 'UP1', x: W * 0.1 },
+            { id: 'S-UP2-A', track: 'UP2', x: W * 0.1 },
+            { id: 'S-UP2-B', track: 'UP2', x: sidingEnd - SWITCH_LENGTH - 20 },
+            { id: 'S-SIDING', track: 'SIDING', x: sidingEnd - SWITCH_LENGTH - 20 },
+        ];
+        signalDefs.forEach(s => simulationState.signals[s.id] = new Signal(s.id, s.track, s.x));
+        
+        // Define Trains
+        simulationState.trains = [
+            new Train({ name: 'EXP 1', color: '#dc2626', trackId: 'UP1', x: -100, direction: 1, priority: 1, maxSpeed: 40, mass: 50000, maxTractiveEffort: 30000, maxBrakingForce: 40000 }),
+            new Train({ name: 'FRT 1', color: '#2563eb', trackId: 'UP2', x: 0, direction: 1, priority: 2, maxSpeed: 25, mass: 150000, maxTractiveEffort: 50000, maxBrakingForce: 30000 }),
+            new Train({ name: 'EXP 2', color: '#ca8a04', trackId: 'UP2', x: -400, direction: 1, priority: 1, maxSpeed: 40, mass: 50000, maxTractiveEffort: 30000, maxBrakingForce: 40000 }),
+            new Train({ name: 'PASS 1', color: '#16a34a', trackId: 'DOWN1', x: W + 100, direction: -1, priority: 2, maxSpeed: 30, mass: 60000, maxTractiveEffort: 25000, maxBrakingForce: 35000 }),
+        ];
+    }
+    
+    function updateBlockStates() {
+        Object.values(simulationState.blocks).forEach(b => {
+            b.occupiedBy = null;
+            if (b.state !== 'RESERVED') b.state = 'CLEAR';
+        });
+
+        simulationState.trains.forEach(train => {
+            const head = train.x + (train.direction === 1 ? train.length : 0);
+            const tail = train.x + (train.direction === 1 ? 0 : train.length);
+            
+            for (const block of Object.values(simulationState.blocks)) {
+                if (block.trackId === train.trackId || block.trackId === train.targetTrackId) {
+                     if (Math.max(head, tail) > block.start && Math.min(head, tail) < block.end) {
+                        block.state = 'OCCUPIED';
+                        block.occupiedBy = train.name;
+                    }
+                }
+            }
+        });
+    }
+
+    function aiDispatcher() {
+        const MIN_SAFE_DISTANCE = 250; 
+
+        // Reset AI states before re-evaluation
+        simulationState.trains.forEach(t => t.aiState = 'PROCEED');
+
+        // Siding logic for UP2
+        const up2Trains = simulationState.trains
+            .filter(t => (t.trackId === 'UP2' || t.targetTrackId === 'UP2') && t.direction === 1)
+            .sort((a, b) => a.x - b.x);
+
+        if (up2Trains.length > 1) {
+            const trainBehind = up2Trains[0];
+            const trainAhead = up2Trains[1];
+            if (trainBehind.priority < trainAhead.priority) {
+                const distance = trainAhead.x - (trainBehind.x + trainBehind.length);
+                if (distance < 500 && !trainAhead.targetTrackId) {
+                     const sidingBlock = simulationState.blocks['SIDING-MAIN'];
+                     if (sidingBlock.state === 'CLEAR') {
+                         log(`Dispatcher: ${trainAhead.name} (P${trainAhead.priority}) to siding for ${trainBehind.name} (P${trainBehind.priority}) to pass.`);
+                         trainAhead.targetTrackId = 'SIDING';
+                     }
+                }
+            }
+        }
+        
+        // Logic for trains to rejoin main line from siding
+        const sidingTrain = simulationState.trains.find(t => t.trackId === 'SIDING');
+        if (sidingTrain) {
+            const up2BlockAfterSiding = simulationState.blocks['UP2-2'];
+            if (up2BlockAfterSiding.state === 'CLEAR' && sidingTrain.aiState !== 'HOLD') {
+                log(`Dispatcher: Siding clear. ${sidingTrain.name} to rejoin main line.`);
+                sidingTrain.targetTrackId = 'UP2';
+            }
+        }
+        
+        // Same-track collision avoidance
+        ['UP1', 'UP2', 'DOWN1'].forEach(trackId => {
+            const trainsOnTrack = simulationState.trains
+                .filter(t => t.trackId === trackId && !t.targetTrackId)
+                .sort((a, b) => a.direction * (a.x - b.x));
+
+            if (trainsOnTrack.length < 2) return;
+
+            for (let i = 0; i < trainsOnTrack.length - 1; i++) {
+                const trainBehind = trainsOnTrack[i];
+                const trainAhead = trainsOnTrack[i+1];
+
+                if (trainBehind.direction !== trainAhead.direction) continue;
+
+                const distance = Math.abs(trainAhead.x - trainBehind.x) - trainBehind.length;
+
+                if (distance < MIN_SAFE_DISTANCE) {
+                    if (trainBehind.aiState !== 'HOLD') {
+                        log(`Dispatcher: ${trainBehind.name} holding for ${trainAhead.name} on ${trackId}.`);
+                        trainBehind.aiState = 'HOLD';
+                    }
+                }
+            }
+        });
+    }
+
+
+    // --- MAIN SIMULATION LOOP ---
+
+    let lastTime = performance.now();
+    function animate(now) {
+        const deltaTime = now - lastTime;
+        lastTime = now;
+
+        // 1. Update AI and Logic
+        aiDispatcher();
+        updateBlockStates();
+
+        // 2. Update Model States
+        Object.values(simulationState.signals).forEach(s => s.updateAspect(simulationState.blocks));
+        simulationState.trains.forEach(t => t.update(deltaTime, Object.values(simulationState.signals), simulationState.trains));
+        
+        // 3. Render View
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawFullTrackLayout();
+        Object.values(simulationState.blocks).forEach(b => b.draw());
+        Object.values(simulationState.signals).forEach(s => s.draw());
+        simulationState.trains.forEach(t => t.draw());
+
+        // 4. Update UI panels
+        blockStatusDiv.innerHTML = "";
+        Object.values(simulationState.blocks).sort((a,b) => a.id.localeCompare(b.id)).forEach(b => {
+            const d = document.createElement("div");
+            d.innerText = `${b.id.padEnd(12)}: ${b.occupiedBy || b.state.toLowerCase()}`;
+            d.className = `status-${b.state.toLowerCase()}`;
+            blockStatusDiv.appendChild(d);
+        });
+        
+        requestAnimationFrame(animate);
+    }
+
+    // --- START ---
+    initializeSimulation();
+    log("Simulation Initialized. AI Dispatcher Online.")
+    animate(performance.now());
+    window.addEventListener('resize', initializeSimulation);
+
+</script>
+</body>
+</html>
