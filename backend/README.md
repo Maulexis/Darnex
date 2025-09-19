@@ -117,7 +117,6 @@ node client.js
 ```
 
 ---
-
 ## 📡 API Endpoints
 
 ### 1. Get Station Snapshot

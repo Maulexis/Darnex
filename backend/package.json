@@ -4,17 +4,18 @@
     "description": "Backend for a railway traffic management & simulation system.",
     "main": "src/server.js",
     "scripts": {
-      "start": "node src/server.js",
-      "seed": "node src/db/seed/seed_data.sql",
-      "db:migrate": "psql -U your_username -d your_dbname -a -f src/db/migrations/20250915_initial_schema.sql"
+        "start": "node src/server.js",
+        "seed": "node src/db/seed/seed_data.sql",
+        "db:migrate": "psql -U your_username -d your_dbname -a -f src/db/migrations/20250915_initial_schema.sql"
     },
     "keywords": [],
     "author": "Daksh",
     "license": "ISC",
     "dependencies": {
-      "express": "^4.19.2",
-      "pg": "^8.12.0",
-      "redis": "^4.6.15",
-      "socket.io": "^4.7.5"
+        "express": "^4.19.2",
+        "pg": "^8.16.3",
+        "redis": "^4.6.15",
+        "socket.io": "^4.7.5",
+        "socket.io-client": "^4.8.1"
     }
-  }
+}

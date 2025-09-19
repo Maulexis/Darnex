@@ -26,19 +26,3 @@ INSERT INTO tracks (from_station, to_station, length_m, type, allowed_speed) VAL
 INSERT INTO trains (train_no, name, type, priority, length_m) VALUES
 ('12986', 'Ajmer Shatabdi Express', 'express', 1, 300),
 ('FRT7890', 'Freight Train 7890', 'freight', 5, 600);
-
--- Insert Timetable Events
--- Ajmer Shatabdi (12986) Timetable
-INSERT INTO timetable_events (train_id, station_id, scheduled_arrival, scheduled_departure, platform_no, order_no) VALUES
-((SELECT id FROM trains WHERE train_no = '12986'), (SELECT id FROM stations WHERE code = 'AII'), '2025-09-15 05:45:00+05:30', '2025-09-15 05:45:00+05:30', '1', 1),
-((SELECT id FROM trains WHERE train_no = '12986'), (SELECT id FROM stations WHERE code = 'JP'), '2025-09-15 08:35:00+05:30', '2025-09-15 08:40:00+05:30', '2', 2);
-
--- Freight Train (FRT7890) Timetable
-INSERT INTO timetable_events (train_id, station_id, scheduled_arrival, scheduled_departure, platform_no, order_no) VALUES
-((SELECT id FROM trains WHERE train_no = 'FRT7890'), (SELECT id FROM stations WHERE code = 'NDLS'), '2025-09-15 09:00:00+05:30', '2025-09-15 09:00:00+05:30', '1', 1),
-((SELECT id FROM trains WHERE train_no = 'FRT7890'), (SELECT id FROM stations WHERE code = 'JP'), '2025-09-15 13:30:00+05:30', '2025-09-15 13:45:00+05:30', '6', 2);
-
--- Insert Initial Train Movements (live position)
-INSERT INTO train_movements (train_id, current_station, next_station, status, speed_kmph, position_m) VALUES
-((SELECT id FROM trains WHERE train_no = '12986'), (SELECT id FROM stations WHERE code = 'AII'), (SELECT id FROM stations WHERE code = 'JP'), 'enroute', 100, 100000),
-((SELECT id FROM trains WHERE train_no = 'FRT7890'), (SELECT id FROM stations WHERE code = 'NDLS'), (SELECT id FROM stations WHERE code = 'JP'), 'enroute', 60, 250000);
