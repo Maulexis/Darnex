@@ -218,9 +218,9 @@
                     } else if (nextSignal.aspect === 'YELLOW') {
                         targetSpeed = this.maxSpeed * 0.5;
                          if (this.velocity > targetSpeed) {
-                            this.state = "BRAKING";
+                             this.state = "BRAKING";
                         } else {
-                            this.state = "RUNNING";
+                             this.state = "RUNNING";
                         }
                     } else {
                         this.state = "RUNNING";
@@ -423,8 +423,8 @@
             for (const block of Object.values(simulationState.blocks)) {
                 if (block.trackId === train.trackId || block.trackId === train.targetTrackId) {
                      if (Math.max(head, tail) > block.start && Math.min(head, tail) < block.end) {
-                        block.state = 'OCCUPIED';
-                        block.occupiedBy = train.name;
+                         block.state = 'OCCUPIED';
+                         block.occupiedBy = train.name;
                     }
                 }
             }
