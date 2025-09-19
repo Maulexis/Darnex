@@ -1,0 +1,11 @@
+id,from_station,to_station,length_m,type,allowed_speed,from_code,to_code
+"1","1","2","135000","double-line","120","JP","AII"
+"2","1","3","309000","double-line","140","JP","NDLS"
+"3","1","2","135000","double-line","120","JP","AII"
+"4","1","3","309000","double-line","140","JP","NDLS"
+"5","1","2","135000","double-line","120","JP","AII"
+"6","1","3","309000","double-line","140","JP","NDLS"
+"7","1","2","135000","double-line","120","JP","AII"
+"8","1","3","309000","double-line","140","JP","NDLS"
+"9","1","2","135000","double-line","120","JP","AII"
+"10","1","3","309000","double-line","140","JP","NDLS"
