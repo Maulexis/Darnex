@@ -50,15 +50,15 @@ CREATE TABLE IF NOT EXISTS signals (
 );
 
 -- Table: trains
-CREATE TABLE IF NOT EXISTS trains (
+-- This is the CORRECT version
+CREATE TABLE IF NOT EXISTS tracks (
     id SERIAL PRIMARY KEY,
-    train_no VARCHAR(20) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    from_station INTEGER NOT NULL REFERENCES stations(id) ON DELETE CASCADE,
+    to_station INTEGER NOT NULL REFERENCES stations(id) ON DELETE CASCADE, -- <-- COMMA ADDED
+    length_m INTEGER NOT NULL,
     type VARCHAR(50),
-    priority INTEGER,
-    length_m INTEGER
+    allowed_speed INTEGER
 );
-
 -- Table: timetable_events
 -- Updated to include delayed_minutes
 CREATE TABLE IF NOT EXISTS timetable_events (
