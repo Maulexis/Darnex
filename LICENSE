@@ -1,0 +1,148 @@
+PROPRIETARY SOFTWARE LICENSE AGREEMENT
+("DARNEX LICENSE")
+
+Version 1.0
+Effective Date: 2025-September-20
+
+Copyright (c) 2025 Kaushal Pratap
+All rights reserved.
+
+THIS IS A LEGALLY BINDING LICENSE AGREEMENT between You (an individual or a legal entity)
+and Kaushal Pratap (the "Licensor"), governing your access to, use of, and distribution of the
+software, source code, assets, documentation, and related materials contained in the
+repository "Darnex" (collectively, the "Software").
+
+BY COPYING, DOWNLOADING, INSTALLING, ACCESSING OR USING THE SOFTWARE OR ANY PART THEREOF,
+YOU AGREE TO BE BOUND BY THIS LICENSE. IF YOU DO NOT AGREE TO THE TERMS HEREIN, DO NOT ACCESS,
+COPY, OR USE THE SOFTWARE; YOU MUST DELETE OR DESTROY ALL COPIES IN YOUR POSSESSION OR CONTROL.
+
+1.  DEFINITIONS
+    1.1 "Software" — the computer programs, source code, object code, documentation, images,
+        data, scripts, models, configuration files, and all other materials provided in the
+        repository and any derivatives or modifications thereof.
+    1.2 "Licensee" or "You" — the individual or entity who has accessed or received the Software.
+    1.3 "Confidential Information" — any technical or non-technical information disclosed by
+        the Licensor to the Licensee, including but not limited to the Software, algorithms,
+        architecture, designs, trade secrets, business processes, know-how, and machine learning
+        model parameters not publicly available.
+
+2.  GRANT OF RIGHTS
+    2.1 No Right to Copy or Use: Except as expressly set forth in this Agreement, no right,
+        license or other interest in the Software is granted to You. All rights, title and
+        interest in and to the Software, including all intellectual property rights, remain
+        exclusively with the Licensor.
+    2.2 Limited Evaluation License: The Licensor may, in its sole discretion and only by a
+        separate written agreement, grant You a limited, non-exclusive, non-transferable,
+        revocable evaluation license to use the Software for a limited time and purpose.
+        Unless You have such a written agreement, You shall have no license to use the Software.
+
+3.  RESTRICTIONS (You shall NOT)
+    3.1 copy, reproduce, or distribute the Software or portions thereof in any form, or create
+        derivative works based on the Software;
+    3.2 modify, adapt, translate, reverse engineer, decompile, disassemble, or otherwise attempt
+        to derive the source code, algorithms, model weights, or internal structure of the Software;
+    3.3 publish, display, transfer, lease, rent, sublicense, or otherwise make the Software
+        available to third parties;
+    3.4 remove, obscure, or alter any copyright, trademark, patent or other proprietary notices
+        on the Software or accompanying documentation;
+    3.5 use the Software to build a competing product or service, or to facilitate creation of
+        a product or service that competes directly with Licensor’s business;
+    3.6 use the Software for any illegal, malicious, or safety-critical operation where the
+        failure of the Software could lead to property damage, personal injury, or loss of life,
+        unless expressly permitted in writing by the Licensor following safety certification.
+
+4.  CONFIDENTIALITY
+    4.1 If You receive the Software not already publicly available, You agree the Software is
+        Confidential Information. You shall hold the Software in strict confidence and shall
+        not disclose it to any third party without Licensor’s prior written consent.
+    4.2 The obligations of this Section do not apply to information that: (a) is or becomes
+        generally available to the public through no act or omission of the Licensee; (b) was
+        known to the Licensee prior to disclosure; or (c) is rightfully received from a third
+        party without breach of an obligation of confidentiality.
+
+5.  INTELLECTUAL PROPERTY; OWNERSHIP
+    5.1 All right, title and interest in and to the Software, including all patents, copyrights,
+        trade secrets, trademarks and other proprietary rights, are and shall remain the exclusive
+        property of the Licensor.
+    5.2 Nothing in this Agreement transfers ownership of any intellectual property rights to You.
+
+6.  EXPORT, SANCTIONS AND COMPLIANCE
+    6.1 You shall comply with all applicable export control laws and sanctions regulations. You
+        shall not export, re-export, or transfer the Software to any country, person, or entity
+        to which such export, re-export or transfer is prohibited by applicable law.
+
+7.  DISCLAIMERS; NO WARRANTIES
+    7.1 THE SOFTWARE IS PROVIDED "AS IS" AND LICENSOR HEREBY DISCLAIMS ALL WARRANTIES, WHETHER
+        EXPRESS, IMPLIED, STATUTORY OR OTHERWISE, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES
+        OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND ANY WARRANTY
+        ARISING FROM COURSE OF DEALING OR USAGE OF TRADE.
+    7.2 LICENSOR MAKES NO WARRANTY THAT THE SOFTWARE WILL MEET YOUR REQUIREMENTS OR THAT THE
+        OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE.
+
+8.  LIMITATION OF LIABILITY
+    8.1 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LICENSOR SHALL NOT BE LIABLE FOR ANY
+        INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL OR EXEMPLARY DAMAGES (INCLUDING, BUT NOT
+        LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, LOSS OF BUSINESS, LOSS OF DATA,
+        LOSS OF PROFITS, OR BUSINESS INTERRUPTION), HOWEVER CAUSED, ARISING IN ANY WAY OUT OF THE
+        USE OF OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+    8.2 LICENSOR’S AGGREGATE LIABILITY UNDER THIS AGREEMENT SHALL NOT EXCEED TWO HUNDRED FIFTY
+        DOLLARS (US $250) OR THE AMOUNT PAID BY YOU TO LICENSOR (IF ANY), WHICHEVER IS GREATER.
+
+9.  INDEMNIFICATION
+    9.1 You shall indemnify, defend and hold harmless the Licensor and its officers, directors,
+        employees and agents from and against any and all third-party claims, liabilities, damages,
+        losses, or expenses (including reasonable attorneys’ fees) arising out of or in connection
+        with: (a) Your breach of this Agreement; (b) Your negligent or willful misuse of the Software;
+        or (c) any derivative works or services that You distribute in violation of this Agreement.
+
+10. TERMINATION
+    10.1 This Agreement is effective until terminated. Licensor may terminate this Agreement
+         immediately if You breach any provision of this Agreement. Upon termination, You must
+         immediately cease all use of the Software and destroy or return (at Licensor's option)
+         all copies of the Software and any Confidential Information in Your possession or control.
+    10.2 Sections 3 (Restrictions), 4 (Confidentiality), 5 (Ownership), 7 (Disclaimers), 8
+         (Limitation of Liability), 9 (Indemnification), 11 (Governing Law), and 12 (Miscellaneous)
+         shall survive termination.
+
+11. GOVERNING LAW; DISPUTE RESOLUTION
+    11.1 Governing Law: This Agreement will be governed by and construed in accordance with the
+         laws of Indian Government without regard to choice-of-law principles.
+    11.2 Dispute Resolution: Any dispute, controversy or claim arising out of or relating to this
+         Agreement shall first be attempted to be resolved by good-faith negotiation between the
+         parties. If unresolved within thirty (30) days, the dispute shall be finally settled by
+         arbitration administered by a recognized arbitration body in Indian Government,
+         and judgment on the award rendered by the arbitrator(s) may be entered in any court having
+         jurisdiction thereof.
+
+12. MISCELLANEOUS
+    12.1 Entire Agreement: This Agreement constitutes the entire agreement between the parties
+         with respect to the subject matter hereof and supersedes all prior understandings.
+    12.2 Amendments: No amendment to this Agreement will be effective unless in writing and
+         signed by an authorized representative of Licensor.
+    12.3 Severability: If any provision of this Agreement is held to be invalid or unenforceable,
+         such provision shall be struck and the remaining provisions shall remain in full force
+         and effect.
+    12.4 Assignment: You may not assign or transfer this Agreement or any rights granted hereunder
+         without the prior written consent of Licensor.
+    12.5 Notices: All notices shall be in writing and sent to:
+         Kaushal Pratap
+         kaushalpratap3d@gmail.com
+         (or such other address as Licensor may specify in writing).
+
+13. INJUNCTION AND EQUITABLE RELIEF
+    13.1 You acknowledge that a breach of this Agreement may cause irreparable harm to Licensor
+         and that monetary damages may be an inadequate remedy. Licensor shall be entitled to seek
+         injunctive relief or specific performance without posting a bond or other security.
+
+14. PUBLICITY
+    14.1 You shall not publish, disclose, or otherwise publicize the existence or terms of this
+         Agreement or any transaction contemplated hereby, nor use Licensor’s name, logos or marks,
+         without Licensor’s prior written consent.
+
+15. CONTACT
+    15.1 Questions regarding this Agreement should be directed to Kaushal Pratap.
+
+EXECUTED by accessing, receiving, or using the Software.
+
+Kaushal Pratap
+Copyright (c) <YEAR>. All rights reserved.
