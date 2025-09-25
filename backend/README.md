@@ -65,7 +65,7 @@ psql -U postgres -d railway_sim_db -a -f src/db/seed/seed_data.sql
 ```
 
 ### 4. Install Node.js Dependencies
-```bash
+```bash 
 npm install
 ```
 
