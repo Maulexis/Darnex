@@ -354,60 +354,68 @@ async function insertWeatherRecords(client, total = 50000) {
 }
 
 /* 12) Safety scenarios (~20) */
-async function insertSafetyScenarios(client) {
-    const scenarios = [
-      {
-        scenario_time: new Date(),
-        description: "Signal malfunction detected near Durgapura.",
-        severity: "High",
-      },
-      {
-        scenario_time: new Date(),
-        description: "Track obstruction reported at Kanakpura.",
-        severity: "Medium",
-      },
-      {
-        scenario_time: new Date(),
-        description: "Unauthorized entry detected on Bindayaka platform.",
-        severity: "Low",
-      },
-    ];
+async function insertSafetyScenarios(client, total = 100) {
+    console.log("⚠️ Inserting safety scenarios...");
   
-    for (const s of scenarios) {
-      await client.query(
-        `INSERT INTO safety_scenarios (scenario_time, description, severity)
-         VALUES ($1, $2, $3)`,
-        [s.scenario_time, s.description, s.severity]
-      );
-    }
+    const severities = ["Low", "Medium", "High", "Critical"];
+    const stationsRes = await client.query("SELECT id FROM stations");
+    const stations = stationsRes.rows;
+  
+    const scenarios = Array.from({ length: total }, () => [
+      faker.helpers.arrayElement(stations).id, // station_id
+      faker.date.recent({ days: 90 }), // scenario_time
+      faker.helpers.arrayElement([
+        "Signal malfunction detected",
+        "Track obstruction reported",
+        "Overcrowding at platform",
+        "Unauthorized entry detected",
+        "Electrical fault in station premises",
+        "Minor fire incident reported",
+        "Suspicious package found",
+        "Emergency brake failure test",
+        "Medical emergency at station",
+        "Flooding near tracks",
+      ]),
+      faker.helpers.arrayElement(severities),
+    ]);
+  
+    await bulkInsert(
+      client,
+      "safety_scenarios",
+      ["station_id", "scenario_time", "description", "severity"],
+      scenarios
+    );
+  
+    console.log(`✅ Safety scenarios inserted (${total}).`);
+    return total;
   }
   
-
+  
 /* 13) Congestion data: 30 days per platform (platform_id, recorded_at, congestion_level) */
-async function insertCongestionData(client) {
-  const platforms = (await client.query("SELECT id FROM platforms")).rows.map(r => r.id);
-  if (!platforms.length) {
-    console.warn("⚠️ No platforms found for congestion data.");
-    return 0;
+async function insertCongestionData(client, total = 1000) {
+    const platformsRes = await client.query("SELECT id, station_id FROM platforms");
+    const platforms = platformsRes.rows;
+  
+    const congestionRecords = Array.from({ length: total }, () => {
+      const platform = faker.helpers.arrayElement(platforms);
+      return [
+        platform.station_id, // station_id (fix ✅)
+        platform.id,         // platform_id
+        faker.date.recent({ days: 30 }),
+        faker.number.int({ min: 1, max: 100 }) // congestion_level
+      ];
+    });
+  
+    await bulkInsert(
+      client,
+      "congestion_data",
+      ["station_id", "platform_id", "recorded_at", "congestion_level"],
+      congestionRecords
+    );
+  
+    console.log(`✅ Congestion data inserted (${total}).`);
   }
-
-  const inserts = [];
-  for (const p of platforms) {
-    for (let d = 0; d < 30; d++) {
-      inserts.push([
-        p,
-        new Date(Date.now() - d * 24 * 3600 * 1000),
-        faker.number.int({ min: 0, max: 100 })
-      ]);
-    }
-  }
-
-  const inserted = await bulkInsert(client, "congestion_data",
-    ["platform_id", "recorded_at", "congestion_level"], inserts);
-  console.log(`✅ Congestion data inserted (~${inserted}).`);
-  return inserted;
-}
-
+  
 /* MAIN: orchestrate everything in the right order */
 async function main() {
   const client = await pool.connect();
@@ -468,7 +476,8 @@ async function main() {
     await insertWeatherRecords(client, 50000);
 
     // 12 Safety scenarios
-    await insertSafetyScenarios(client);
+    await insertSafetyScenarios(client, 100);
+
 console.log("✅ Safety scenarios inserted.");
 
 
