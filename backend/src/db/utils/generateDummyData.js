@@ -1,576 +1,476 @@
 // src/db/utils/generateDummyData.js
-// Ready-to-run prototype-scale dummy data generator
-// Requirements implemented:
-// stations: 11, platforms: Jaipur=5 others 2-3, signals ~75, trains=500,
-// timetable_events=10k, train_movements=50k, historical_data=50k,
-// real_time_positions=10k, incidents=10, weather_records=50k,
-// safety_scenarios~20, congestion_data ~30 days per platform
+// Full corrected dummy-data generator for the prototype
+// - Uses client from ../../services/db.js
+// - Inserts data in correct FK order
+// - Chunked bulk inserts for large volumes
+// - Station list is exactly what you requested
 
 import pool from "../../services/db.js";
 import { faker } from "@faker-js/faker";
 
-/* UTILITIES */
-const CHUNK = 1000; // chunk size for bulk inserts
+/* CONFIG */
+const CHUNK = 1000;
 
+/* UTILITIES */
 function chunkArray(arr, size = CHUNK) {
   const out = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
   return out;
 }
 
-function nowMinusDays(days) {
-  return new Date(Date.now() - days * 24 * 3600 * 1000);
-}
-
-function formatIso(d) {
-  return d.toISOString();
-}
-
-/* RESET TABLES (safe) */
-async function resetTables() {
-  const tables = [
-    "historical_data",
-    "congestion_data",
-    "safety_scenarios",
-    "weather_records",
-    "incidents",
-    "real_time_positions",
-    "train_movements",
-    "timetable_events",
-    "signals",
-    "trains",
-    "tracks",
-    "platforms",
-    "stations"
-  ];
-  for (let t of tables) {
-    await pool.query(`TRUNCATE ${t} RESTART IDENTITY CASCADE`);
+async function bulkInsert(client, table, columns, rows, chunkSize = CHUNK) {
+  if (!rows.length) return 0;
+  const chunks = chunkArray(rows, chunkSize);
+  let total = 0;
+  for (const chunk of chunks) {
+    const params = [];
+    const vals = [];
+    let idx = 1;
+    for (const r of chunk) {
+      const placeholder = r.map(() => `$${idx++}`).join(", ");
+      vals.push(`(${placeholder})`);
+      params.push(...r);
+    }
+    const q = `INSERT INTO ${table} (${columns.join(", ")}) VALUES ${vals.join(", ")}`;
+    await client.query(q, params);
+    total += chunk.length;
   }
-  console.log("✅ Tables truncated.");
+  return total;
 }
 
-/* 1) STATIONS: 11 fixed stations with distances (<1000 numeric(5,2)) */
+/* USER-SUPPLIED / FIXED STATIONS (you asked these exact ones) */
 const FIXED_STATIONS = [
-  { code: "JP", name: "Jaipur Junction", distance: 0.0 },
-  { code: "DL", name: "Delhi Junction", distance: 280.5 },
-  { code: "AG", name: "Agra Cantt", distance: 200.2 },
-  { code: "LK", name: "Lucknow NR", distance: 470.0 },
-  { code: "MB", name: "Mumbai Central", distance: 830.7 },
-  { code: "PT", name: "Patna Junction", distance: 890.1 },
-  { code: "BG", name: "Bengaluru City", distance: 950.0 },
-  { code: "HY", name: "Hyderabad Deccan", distance: 740.3 },
-  { code: "KL", name: "Kolkata Howrah", distance: 920.0 },
-  { code: "CN", name: "Chennai Central", distance: 980.5 },
-  { code: "RA", name: "Ratlam Junction", distance: 380.6 }
+  { code: "BSGD", name: "Bais Godam", distance: 2.0 },
+  { code: "DKBJ", name: "Dahar Ka Balaji", distance: 3.0 },
+  { code: "GADJ", name: "Jaipur Gandhinagar", distance: 5.0 },
+  { code: "DPA",  name: "Durgapura", distance: 7.0 },
+  { code: "KKU",  name: "Kanakpura", distance: 9.0 },
+  { code: "GTJT", name: "Getor Jagatpura", distance: 11.0 },
+  { code: "NDH",  name: "Nindhar Benar", distance: 11.0 },
+  { code: "SNGN", name: "Sanganer", distance: 12.0 },
+  { code: "BDYK", name: "Bindayaka", distance: 14.0 },
+  { code: "KWP",  name: "Khatipura", distance: 17.0 }
 ];
 
-async function insertStations() {
-  const values = [];
-  const params = [];
-  let idx = 1;
-  for (let s of FIXED_STATIONS) {
-    values.push(`($${idx++}, $${idx++}, $${idx++})`);
-    params.push(s.code, s.name, s.distance);
-  }
-  const q = `INSERT INTO stations (code, name, distance_from_jaipur) VALUES ${values.join(",")}`;
-  await pool.query(q, params);
-  console.log("✅ Stations inserted (11).");
+/* 1) Stations */
+async function insertStations(client) {
+  const rows = FIXED_STATIONS.map(s => [s.code, s.name, s.distance]);
+  const inserted = await bulkInsert(client, "stations", ["code", "name", "distance_from_jaipur"], rows);
+  console.log(`✅ Stations inserted (${inserted}).`);
+  // return full station rows (id, code)
+  const res = await client.query("SELECT id, code FROM stations ORDER BY id");
+  return res.rows;
 }
 
-/* 2) PLATFORMS */
-async function insertPlatforms() {
-  const res = await pool.query("SELECT id, code FROM stations");
-  const rows = res.rows;
+/* 2) Platforms */
+async function insertPlatforms(client) {
+  const { rows: stations } = await client.query("SELECT id, code FROM stations ORDER BY id");
+  if (!stations.length) {
+    console.warn("⚠️ No stations available for platforms.");
+    return [];
+  }
+
   const inserts = [];
-  for (let r of rows) {
-    let count = (r.code === "JP") ? 5 : faker.number.int({ min: 2, max: 3 });
+  for (let i = 0; i < stations.length; i++) {
+    const s = stations[i];
+    // Make the first station have 5 platforms (mimic Jaipur logic), others 2-3
+    const count = (i === 0) ? 5 : faker.number.int({ min: 2, max: 3 });
     for (let p = 1; p <= count; p++) {
-      inserts.push({ station_id: r.id, platform_no: p });
+      inserts.push([s.id, p]);
     }
   }
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const values = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      values.push(`($${idx++}, $${idx++})`);
-      params.push(it.station_id, it.platform_no);
-    }
-    await pool.query(
-      `INSERT INTO platforms (station_id, platform_no) VALUES ${values.join(",")}`,
-      params
-    );
-  }
-  console.log("✅ Platforms inserted.");
+
+  const inserted = await bulkInsert(client, "platforms", ["station_id", "platform_no"], inserts);
+  console.log(`✅ Platforms inserted (${inserted}).`);
+  const res = await client.query("SELECT id, station_id, platform_no FROM platforms ORDER BY id");
+  return res.rows;
 }
 
-/* 3) TRACKS */
-async function insertTracks() {
-  const stations = (await pool.query("SELECT id, code FROM stations ORDER BY id")).rows;
-  const stationMap = new Map(stations.map(s => [s.code, s.id]));
-  const inserts = [];
-  const jpId = stationMap.get("JP");
-
-  for (let s of stations) {
-    if (s.id === jpId) continue;
-    const dist = faker.number.float({ min: 30, max: 350, precision: 0.01 });
-    inserts.push({ from: jpId, to: s.id, d: dist });
+/* 3) Tracks */
+async function insertTracks(client) {
+  const stations = (await client.query("SELECT id, code FROM stations ORDER BY id")).rows;
+  if (stations.length < 2) {
+    console.warn("⚠️ Not enough stations to create tracks.");
+    return [];
   }
 
+  const inserts = [];
+
+  // Connect first (hub) station to all others (one-way)
+  const hub = stations[0];
+  for (const s of stations) {
+    if (s.id === hub.id) continue;
+    inserts.push([hub.id, s.id, faker.number.float({ min: 5, max: 120, precision: 0.01 })]);
+  }
+
+  // Connect adjacent pairs (bidirectional sometimes)
   for (let i = 0; i < stations.length - 1; i++) {
-    const a = stations[i].id, b = stations[i + 1].id;
-    const dist = faker.number.float({ min: 20, max: 200, precision: 0.01 });
-    inserts.push({ from: a, to: b, d: dist });
-    if (Math.random() < 0.6) {
-      inserts.push({ from: b, to: a, d: faker.number.float({ min: 20, max: 200, precision: 0.01 }) });
+    const a = stations[i].id;
+    const b = stations[i + 1].id;
+    inserts.push([a, b, faker.number.float({ min: 5, max: 120, precision: 0.01 })]);
+    if (Math.random() < 0.5) {
+      inserts.push([b, a, faker.number.float({ min: 5, max: 120, precision: 0.01 })]);
     }
   }
 
+  // Deduplicate by from_to
   const seen = new Set();
   const unique = [];
-  for (const it of inserts) {
-    const key = `${it.from}_${it.to}`;
+  for (const r of inserts) {
+    const key = `${r[0]}_${r[1]}`;
     if (!seen.has(key)) {
       seen.add(key);
-      unique.push(it);
+      unique.push(r);
     }
   }
 
-  const chunks = chunkArray(unique, CHUNK);
-  for (let c of chunks) {
-    const values = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      values.push(`($${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.from, it.to, it.d);
-    }
-    await pool.query(
-      `INSERT INTO tracks (from_station, to_station, distance_km) VALUES ${values.join(",")}`,
-      params
-    );
-  }
-  console.log("✅ Tracks inserted.");
+  const inserted = await bulkInsert(client, "tracks", ["from_station", "to_station", "distance_km"], unique);
+  console.log(`✅ Tracks inserted (${inserted}).`);
+  const res = await client.query("SELECT id, from_station, to_station, distance_km FROM tracks ORDER BY id");
+  return res.rows;
 }
 
-/* 4) SIGNALS */
-async function insertSignals(target = 75) {
-  const tracks = (await pool.query("SELECT id, distance_km FROM tracks")).rows;
-  let created = 0;
+/* 4) Signals (~75) */
+async function insertSignals(client, target = 75) {
+  const tracks = (await client.query("SELECT id, distance_km FROM tracks")).rows;
+  if (!tracks.length) {
+    console.warn("⚠️ No tracks available for signals.");
+    return 0;
+  }
+
   const inserts = [];
-  while (created < target) {
-    const track = faker.helpers.arrayElement(tracks);
-    const maxPos = Math.max(0.1, Number(track.distance_km) - 0.1);
-    const position = faker.number.float({ min: 0.1, max: Math.max(0.2, maxPos), precision: 0.01 });
-    inserts.push({
-      track_id: track.id,
-      position_km: position,
-      status: faker.helpers.arrayElement(["GREEN", "YELLOW", "RED"])
-    });
-    created++;
+  for (let i = 0; i < target; i++) {
+    const t = faker.helpers.arrayElement(tracks);
+    const maxPos = Math.max(0.1, Number(t.distance_km) - 0.1);
+    const pos = faker.number.float({ min: 0.1, max: Math.max(0.2, maxPos), precision: 0.01 });
+    const status = faker.helpers.arrayElement(["GREEN", "YELLOW", "RED"]);
+    inserts.push([t.id, pos, status]);
   }
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.track_id, it.position_km, it.status);
-    }
-    await pool.query(
-      `INSERT INTO signals (track_id, position_km, status) VALUES ${vals.join(",")}`,
-      params
-    );
-  }
-  console.log(`✅ Signals inserted (~${target}).`);
+
+  const inserted = await bulkInsert(client, "signals", ["track_id", "position_km", "status"], inserts);
+  console.log(`✅ Signals inserted (~${inserted}).`);
+  return inserted;
 }
 
-/* 5) TRAINS */
-async function insertTrains(total = 500) {
+/* 5) Trains (500) */
+async function insertTrains(client, total = 500) {
   const inserts = [];
-  const usedTrainNos = new Set();
+  const used = new Set();
 
-  function generateUniqueTrainNo() {
-    let num;
+  function genUniqueTrainNo() {
+    let v;
     do {
-      num = faker.number.int({ min: 10000, max: 99999 });
-    } while (usedTrainNos.has(num));
-    usedTrainNos.add(num);
-    return `${num}`;
+      v = faker.number.int({ min: 10000, max: 99999 }).toString();
+    } while (used.has(v));
+    used.add(v);
+    return v;
   }
 
   for (let i = 0; i < total; i++) {
-    const train_no = generateUniqueTrainNo();
-    const name = `${faker.word.adjective()} ${faker.word.noun()} Express`.slice(0, 95);
-    const type = faker.helpers.arrayElement(["Passenger", "Express", "Superfast", "Goods", "MEMU"]);
-    inserts.push({ train_no, name, type });
+    inserts.push([
+      genUniqueTrainNo(),
+      `${faker.word.adjective({ length: { min: 3, max: 10 } })} ${faker.word.noun({ length: { min: 3, max: 10 } })} Express`.slice(0, 95),
+      faker.helpers.arrayElement(["Passenger", "Express", "Superfast", "Goods", "MEMU"]),
+      faker.number.int({ min: 100, max: 1200 }), // capacity
+      faker.number.int({ min: 50, max: 600 })   // length (approx)
+    ]);
   }
 
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.train_no, it.name, it.type);
-    }
-    await pool.query(
-      `INSERT INTO trains (train_no, name, type) VALUES ${vals.join(",")}`,
-      params
-    );
-  }
-  console.log(`✅ ${total} trains inserted.`);
+  const inserted = await bulkInsert(client, "trains", ["train_no", "name", "type", "capacity", "length"], inserts);
+  console.log(`✅ Trains inserted (${inserted}).`);
+  const res = await client.query("SELECT id FROM trains");
+  return res.rows.map(r => r.id);
 }
 
-/* 6) TIMETABLE EVENTS */
-async function insertTimetableEvents(target = 10000) {
-  const trains = (await pool.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const stations = (await pool.query("SELECT id FROM stations")).rows.map(r => r.id);
+/* 6) Timetable events (~10000) */
+async function insertTimetableEvents(client, target = 10000) {
+  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
+  const stationIds = (await client.query("SELECT id FROM stations")).rows.map(r => r.id);
+  if (!trainIds.length || !stationIds.length) {
+    console.warn("⚠️ Missing trains or stations for timetable events.");
+    return 0;
+  }
+
   const inserts = [];
-
   for (let i = 0; i < target; i++) {
-    const train_id = faker.helpers.arrayElement(trains);
-    const station_id = faker.helpers.arrayElement(stations);
-
+    const train_id = faker.helpers.arrayElement(trainIds);
+    const station_id = faker.helpers.arrayElement(stationIds);
     const scheduledArrival = faker.date.between({
-        from: new Date(),
-        to: new Date(Date.now() + 30 * 24 * 3600 * 1000) // 30 days ahead
-      });
-      
-
-    const scheduledDeparture = new Date(
-      scheduledArrival.getTime() + faker.number.int({ min: 1, max: 60 }) * 60000
-    );
-    const delay = faker.number.int({ min: 0, max: 300 });
-
-    inserts.push({
-      train_id, station_id,
-      scheduled_arrival: scheduledArrival,
-      scheduled_departure: scheduledDeparture,
-      delay_minutes: delay
+      from: new Date(),
+      to: new Date(Date.now() + 30 * 24 * 3600 * 1000)
     });
+    const scheduledDeparture = new Date(scheduledArrival.getTime() + faker.number.int({ min: 1, max: 60 }) * 60000);
+    const delay = faker.number.int({ min: 0, max: 300 });
+    inserts.push([train_id, station_id, scheduledArrival, scheduledDeparture, delay]);
   }
 
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.train_id, it.station_id, it.scheduled_arrival, it.scheduled_departure, it.delay_minutes);
-    }
-    await pool.query(
-      `INSERT INTO timetable_events (train_id, station_id, scheduled_arrival, scheduled_departure, delay_minutes)
-       VALUES ${vals.join(",")}`,
-      params
-    );
-  }
-  console.log(`✅ Timetable events inserted (~${target}).`);
+  const inserted = await bulkInsert(client, "timetable_events",
+    ["train_id", "station_id", "scheduled_arrival", "scheduled_departure", "delay_minutes"], inserts);
+  console.log(`✅ Timetable events inserted (~${inserted}).`);
+  return inserted;
 }
 
-/* 7) TRAIN MOVEMENTS */
-async function insertTrainMovements(target = 50000) {
-  const trains = (await pool.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const tracks = (await pool.query("SELECT id, distance_km FROM tracks")).rows;
-  const inserts = [];
+/* 7) Train movements (~50000) */
+async function insertTrainMovements(client, target = 50000) {
+  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
+  const tracks = (await client.query("SELECT id, distance_km FROM tracks")).rows;
+  if (!trainIds.length || !tracks.length) {
+    console.warn("⚠️ Missing trains or tracks for train movements.");
+    return 0;
+  }
 
+  const inserts = [];
   for (let i = 0; i < target; i++) {
-    const train_id = faker.helpers.arrayElement(trains);
+    const train_id = faker.helpers.arrayElement(trainIds);
     const track = faker.helpers.arrayElement(tracks);
     const entry = faker.date.recent(30);
     const travelMinutes = Math.max(1, Math.round(Number(track.distance_km) / faker.number.float({ min: 0.3, max: 2.5 })));
     const exit = new Date(entry.getTime() + travelMinutes * 60 * 1000);
     const delay = faker.number.int({ min: 0, max: 120 });
-    inserts.push({ train_id, track_id: track.id, entry_time: entry, exit_time: exit, delay_minutes: delay });
+    inserts.push([train_id, track.id, entry, exit, delay]);
   }
 
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.train_id, it.track_id, it.entry_time, it.exit_time, it.delay_minutes);
-    }
-    await pool.query(
-      `INSERT INTO train_movements (train_id, track_id, entry_time, exit_time, delay_minutes)
-       VALUES ${vals.join(",")}`,
-      params
-    );
-  }
-  console.log(`✅ Train movements inserted (~${target}).`);
+  const inserted = await bulkInsert(client, "train_movements",
+    ["train_id", "track_id", "entry_time", "exit_time", "delay_minutes"], inserts);
+  console.log(`✅ Train movements inserted (~${inserted}).`);
+  return inserted;
 }
 
-/* 8) HISTORICAL DATA */
-async function insertHistoricalData(target = 50000) {
-  const trains = (await pool.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const stations = (await pool.query("SELECT id FROM stations")).rows.map(r => r.id);
-  const inserts = [];
+/* 8) Historical data (~50000) */
+async function insertHistoricalData(client, target = 50000) {
+  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
+  const stationIds = (await client.query("SELECT id FROM stations")).rows.map(r => r.id);
+  if (!trainIds.length || !stationIds.length) {
+    console.warn("⚠️ Missing trains or stations for historical data.");
+    return 0;
+  }
+
   const eventTypes = ["arrival", "departure", "signal_passed"];
-
+  const inserts = [];
   for (let i = 0; i < target; i++) {
-    const train_id = faker.helpers.arrayElement(trains);
-    const station_id = faker.helpers.arrayElement(stations);
-    const t = faker.helpers.arrayElement(eventTypes);
-    const event_time = faker.date.past(180);
-    const delay = faker.number.int({ min: 0, max: 240 });
-    inserts.push({ train_id, station_id, event_time, event_type: t, delay_minutes: delay });
+    inserts.push([
+      faker.helpers.arrayElement(trainIds),
+      faker.helpers.arrayElement(stationIds),
+      faker.date.past({ years: 1 }),
+      faker.helpers.arrayElement(eventTypes),
+      faker.number.int({ min: 0, max: 240 })
+    ]);
   }
 
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.train_id, it.station_id, it.event_time, it.event_type, it.delay_minutes);
-    }
-    await pool.query(
-      `INSERT INTO historical_data (train_id, station_id, event_time, event_type, delay_minutes)
-       VALUES ${vals.join(",")}`,
-      params
-    );
-  }
-  console.log(`✅ Historical data inserted (~${target}).`);
+  const inserted = await bulkInsert(client, "historical_data",
+    ["train_id", "station_id", "event_time", "event_type", "delay_minutes"], inserts);
+  console.log(`✅ Historical data inserted (~${inserted}).`);
+  return inserted;
 }
 
-/* 9) REAL-TIME POSITIONS */
-async function insertRealTimePositions(target = 10000) {
-  const trains = (await pool.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const tracks = (await pool.query("SELECT id, distance_km FROM tracks")).rows;
-  const inserts = [];
+/* 9) Real-time positions (~10000) */
+async function insertRealTimePositions(client, target = 10000) {
+  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
+  const tracks = (await client.query("SELECT id, distance_km FROM tracks")).rows;
+  if (!trainIds.length || !tracks.length) {
+    console.warn("⚠️ Missing trains or tracks for real-time positions.");
+    return 0;
+  }
 
+  const inserts = [];
   for (let i = 0; i < target; i++) {
-    const train_id = faker.helpers.arrayElement(trains);
+    const train_id = faker.helpers.arrayElement(trainIds);
     const track = faker.helpers.arrayElement(tracks);
     const ts = faker.date.recent(7);
     const pos = faker.number.float({ min: 0, max: Number(track.distance_km), precision: 0.01 });
-    inserts.push({ train_id, track_id: track.id, timestamp: ts, position_km: pos });
+    inserts.push([train_id, track.id, ts, pos]);
   }
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.train_id, it.track_id, it.timestamp, it.position_km);
-    }
-    await pool.query(
-      `INSERT INTO real_time_positions (train_id, track_id, timestamp, position_km)
-       VALUES ${vals.join(",")}`,
-      params
-    );
-  }
-  console.log(`✅ Real-time positions inserted (~${target}).`);
+
+  const inserted = await bulkInsert(client, "real_time_positions",
+    ["train_id", "track_id", "timestamp", "position_km"], inserts);
+  console.log(`✅ Real-time positions inserted (~${inserted}).`);
+  return inserted;
 }
 
-/* 10) INCIDENTS */
+/* 10) Incidents (10) */
 async function insertIncidents(client, total = 10) {
-    const trains = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
-    const stations = (await client.query("SELECT id FROM stations")).rows.map(r => r.id);
-    const tracks = (await client.query("SELECT id FROM tracks")).rows.map(r => r.id);
-  
-    if (trains.length === 0 || stations.length === 0 || tracks.length === 0) {
-      console.log("⚠️ Skipping incidents: no trains/stations/tracks available.");
-      return;
-    }
-  
-    const inserts = [];
-    for (let i = 0; i < total; i++) {
-      inserts.push({
-        train_id: faker.helpers.arrayElement(trains),
-        station_id: faker.helpers.arrayElement(stations),
-        track_id: faker.helpers.arrayElement(tracks),
-        incident_time: faker.date.recent(90),
-        description: faker.lorem.sentence()
-      });
-    }
-  
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of inserts) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.train_id, it.station_id, it.track_id, it.incident_time, it.description);
-    }
-  
-    await client.query(
-      `INSERT INTO incidents (train_id, station_id, track_id, incident_time, description)
-       VALUES ${vals.join(",")}`,
-      params
-    );
-  
-    console.log(`✅ ${total} incidents inserted.`);
-  }
-  
+  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
+  const stationIds = (await client.query("SELECT id FROM stations")).rows.map(r => r.id);
+  const trackIds = (await client.query("SELECT id FROM tracks")).rows.map(r => r.id);
 
-/* 11) WEATHER RECORDS */
-async function insertWeatherRecords(client, stationsInput) {
-    // Make it flexible: handle both query result and plain array
-    const stations = Array.isArray(stationsInput) ? stationsInput : stationsInput.rows;
+  if (!trainIds.length || !stationIds.length || !trackIds.length) {
+    console.warn("⚠️ Missing trains/stations/tracks for incidents.");
+    return 0;
+  }
+
+  const inserts = [];
+  for (let i = 0; i < total; i++) {
+    inserts.push([
+      faker.helpers.arrayElement(trainIds),
+      faker.helpers.arrayElement(stationIds),
+      faker.helpers.arrayElement(trackIds),
+      faker.date.recent(90),
+      faker.lorem.sentence()
+    ]);
+  }
+
+  const inserted = await bulkInsert(client, "incidents",
+    ["train_id", "station_id", "track_id", "incident_time", "description"], inserts);
+  console.log(`✅ Incidents inserted (${inserted}).`);
+  return inserted;
+}
+
+/* 11) Weather records (~50000) */
+async function insertWeatherRecords(client, total = 50000) {
+  const stations = (await client.query("SELECT id FROM stations")).rows.map(r => r.id);
+  if (!stations.length) {
+    console.warn("⚠️ No stations for weather records.");
+    return 0;
+  }
+
+  const inserts = [];
+  for (let i = 0; i < total; i++) {
+    inserts.push([
+      faker.helpers.arrayElement(stations),
+      faker.date.between({ from: new Date(Date.now() - 120 * 24 * 3600 * 1000), to: new Date() }),
+      Number((20 + Math.random() * 15).toFixed(2)),
+      Number((Math.random() * 50).toFixed(2)),
+      Number((Math.random() * 10).toFixed(2))
+    ]);
+  }
+
+  const inserted = await bulkInsert(client, "weather_records",
+    ["station_id", "recorded_at", "temperature", "rainfall_mm", "visibility_km"], inserts);
+  console.log(`✅ Weather records inserted (~${inserted}).`);
+  return inserted;
+}
+
+/* 12) Safety scenarios (~20) */
+async function insertSafetyScenarios(client) {
+    const scenarios = [
+      {
+        scenario_time: new Date(),
+        description: "Signal malfunction detected near Durgapura.",
+        severity: "High",
+      },
+      {
+        scenario_time: new Date(),
+        description: "Track obstruction reported at Kanakpura.",
+        severity: "Medium",
+      },
+      {
+        scenario_time: new Date(),
+        description: "Unauthorized entry detected on Bindayaka platform.",
+        severity: "Low",
+      },
+    ];
   
-    if (!stations || stations.length === 0) {
-      console.warn("⚠️ No stations found, skipping weather records.");
-      return;
-    }
-  
-    console.log("🌦️ Inserting weather records...");
-  
-    for (const s of stations) {
+    for (const s of scenarios) {
       await client.query(
-        `INSERT INTO weather_records (station_id, recorded_at, temperature, rainfall_mm, visibility_km) 
-         VALUES ($1, NOW(), $2, $3, $4)`,
-        [
-          s.id,
-          (20 + Math.random() * 15).toFixed(2),   // temperature
-          (Math.random() * 50).toFixed(2),        // rainfall in mm
-          (Math.random() * 10).toFixed(2)         // visibility in km
-        ]
+        `INSERT INTO safety_scenarios (scenario_time, description, severity)
+         VALUES ($1, $2, $3)`,
+        [s.scenario_time, s.description, s.severity]
       );
     }
-  
-    console.log(`✅ Weather records inserted (${stations.length}).`);
   }
   
-/* 12) SAFETY SCENARIOS */
-async function insertSafetyScenarios(total = 20) {
-  const stations = (await pool.query("SELECT id FROM stations")).rows.map(r => r.id);
-  const trains = (await pool.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const inserts = [];
-  const risks = ["Signal Failure", "Track Blockage", "Over Speed", "Platform Overcrowding", "Collision Risk"];
-  for (let i = 0; i < total; i++) {
-    inserts.push({
-      station_id: faker.helpers.arrayElement(stations),
-      train_id: faker.helpers.arrayElement(trains),
-      risk_type: faker.helpers.arrayElement(risks),
-      severity: faker.number.int({ min: 1, max: 5 }),
-      description: faker.lorem.sentence()
-    });
-  }
-  const vals = [];
-  const params = [];
-  let idx = 1;
-  for (let it of inserts) {
-    vals.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
-    params.push(it.station_id, it.train_id, it.risk_type, it.severity, it.description);
-  }
-  await pool.query(
-    `INSERT INTO safety_scenarios (station_id, train_id, risk_type, severity, description)
-     VALUES ${vals.join(",")}`,
-    params
-  );
-  console.log(`✅ Safety scenarios inserted (~${total}).`);
-}
 
-/* 13) CONGESTION DATA */
-async function insertCongestionData() {
-  const platforms = (await pool.query("SELECT id FROM platforms")).rows.map(r => r.id);
+/* 13) Congestion data: 30 days per platform (platform_id, recorded_at, congestion_level) */
+async function insertCongestionData(client) {
+  const platforms = (await client.query("SELECT id FROM platforms")).rows.map(r => r.id);
+  if (!platforms.length) {
+    console.warn("⚠️ No platforms found for congestion data.");
+    return 0;
+  }
+
   const inserts = [];
-  for (let p of platforms) {
-    for (let d = 30; d >= 0; d--) {
-      inserts.push({
-        platform_id: p,
-        date: nowMinusDays(d),
-        average_wait_time: faker.number.float({ min: 0, max: 60, precision: 0.1 })
-      });
+  for (const p of platforms) {
+    for (let d = 0; d < 30; d++) {
+      inserts.push([
+        p,
+        new Date(Date.now() - d * 24 * 3600 * 1000),
+        faker.number.int({ min: 0, max: 100 })
+      ]);
     }
   }
 
-  const chunks = chunkArray(inserts, CHUNK);
-  for (let c of chunks) {
-    const vals = [];
-    const params = [];
-    let idx = 1;
-    for (let it of c) {
-      vals.push(`($${idx++}, $${idx++}, $${idx++})`);
-      params.push(it.platform_id, it.date, it.average_wait_time);
-    }
-    await pool.query(
-      `INSERT INTO congestion_data (platform_id, date, average_wait_time)
-       VALUES ${vals.join(",")}`,
-      params
-    );
-  }
-  console.log(`✅ Congestion data inserted (30 days).`);
+  const inserted = await bulkInsert(client, "congestion_data",
+    ["platform_id", "recorded_at", "congestion_level"], inserts);
+  console.log(`✅ Congestion data inserted (~${inserted}).`);
+  return inserted;
 }
 
-/* MAIN */
-/* MAIN */
+/* MAIN: orchestrate everything in the right order */
 async function main() {
-    const client = await pool.connect();
-  
-    try {
-      console.log("🚉 Starting full prototype dummy data generation...");
-  
-      await client.query(`
-        TRUNCATE TABLE trains RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE stations RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE platforms RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE tracks RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE signals RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE timetable_events RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE train_movements RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE historical_data RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE real_time_positions RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE incidents RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE weather_records RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE safety_scenarios RESTART IDENTITY CASCADE;
-        TRUNCATE TABLE congestion_data RESTART IDENTITY CASCADE;
-      `);
-      console.log("✅ Tables truncated.");
-  
-      await insertStations(client);
-      console.log("✅ Stations inserted (11).");
-  
-      await insertPlatforms(client);
-      console.log("✅ Platforms inserted.");
-  
-      await insertTracks(client);
-      console.log("✅ Tracks inserted.");
-  
-      await insertSignals(client);
-      console.log("✅ Signals inserted (~75).");
-  
-      await insertTrains(client);
-      console.log("✅ 500 trains inserted.");
-  
-      await insertTimetableEvents(client);
-      console.log("✅ Timetable events inserted (~10000).");
-  
-      await insertTrainMovements(client);
-      console.log("✅ Train movements inserted (~50000).");
-  
-      await insertHistoricalData(client);
-      console.log("✅ Historical data inserted (~50000).");
-  
-      await insertRealTimePositions(client);
-      console.log("✅ Real-time positions inserted (~10000).");
-  
-      await insertIncidents(client);
-      console.log("✅ 10 incidents inserted.");
-  
-      await insertWeatherRecords(client);
-      console.log("✅ Weather records inserted (200).");
-  
-      await insertSafetyScenarios(client);
-      console.log("✅ Safety scenarios inserted (~20).");
-  
-      await insertCongestionData(client);
-      console.log("✅ Congestion data inserted (30 days per platform).");
-  
-    } finally {
-      client.release();
-    }
+  const client = await pool.connect();
+  try {
+    console.log("🚉 Starting full prototype dummy data generation...");
+
+    // Clean slate (truncate all our tables)
+    await client.query(`
+      TRUNCATE TABLE
+        congestion_data,
+        safety_scenarios,
+        weather_records,
+        incidents,
+        real_time_positions,
+        historical_data,
+        train_movements,
+        timetable_events,
+        signals,
+        trains,
+        tracks,
+        platforms,
+        stations
+      RESTART IDENTITY CASCADE;
+    `);
+    console.log("✅ Tables truncated.");
+
+    // 1 Stations
+    await insertStations(client);
+
+    // 2 Platforms
+    await insertPlatforms(client);
+
+    // 3 Tracks
+    await insertTracks(client);
+
+    // 4 Signals (create after tracks so they can reference track ids)
+    await insertSignals(client, 75);
+
+    // 5 Trains
+    await insertTrains(client, 500);
+
+    // 6 Timetable events
+    await insertTimetableEvents(client, 10000);
+
+    // 7 Train movements
+    await insertTrainMovements(client, 50000);
+
+    // 8 Historical data
+    await insertHistoricalData(client, 50000);
+
+    // 9 Real-time positions
+    await insertRealTimePositions(client, 10000);
+
+    // 10 Incidents
+    await insertIncidents(client, 10);
+
+    // 11 Weather records
+    await insertWeatherRecords(client, 50000);
+
+    // 12 Safety scenarios
+    await insertSafetyScenarios(client);
+console.log("✅ Safety scenarios inserted.");
+
+
+    // 13 Congestion data (30 days per platform)
+    await insertCongestionData(client);
+
+    console.log("🎉 Dummy data generation complete!");
+  } catch (err) {
+    console.error("❌ Error during dummy data generation:", err);
+  } finally {
+    client.release();
   }
-  main().catch((err) => {
-    console.error("❌ Error populating database:", err);
-    process.exit(1);
-  });
-  
+}
+
+main().catch(err => {
+  console.error("Unhandled error:", err);
+  process.exit(1);
+});
