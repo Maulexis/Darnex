@@ -35,7 +35,7 @@ warnings.filterwarnings('ignore')
 # =============================================================================
 
 DB_PARAMS = {
-    'dbname': 'railway_ai',
+    'dbname': 'railway_sim_db',
     'user': 'postgres',
     'password': 'pj925fhpp5',
     'host': 'localhost',

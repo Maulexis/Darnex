@@ -7,53 +7,29 @@ const { initializeSimulation, simulateMovement } = require('./services/trainSimu
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: '*', // Allows all origins, adjust for production
-  }
-});
+const io = new Server(server,{cors:{origin:'*'}});
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT||3001;
 
-// Middleware for parsing JSON requests.
 app.use(express.json());
-
-// Main API routes.
 app.use('/api', apiRoutes);
 
-// Connect to Redis.
 const redisClient = createClient();
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
+redisClient.on('error', err=>console.log('Redis Client Error',err));
 
-async function main() {
-  await redisClient.connect();
-  console.log('Connected to Redis!');
+async function main(){
+    await redisClient.connect();
+    console.log('Connected to Redis!');
+    await initializeSimulation();
 
-  // Start the train simulation logic.
-  await initializeSimulation();
+    setInterval(async ()=>{ await simulateMovement(io); },5000);
 
-  // Update train positions every 5 seconds and broadcast via WebSockets.
-  setInterval(async () => {
-    try {
-      await simulateMovement(io);
-    } catch (err) {
-      console.error('Simulation loop error:', err);
-    }
-  }, 5000);
-
-  // WebSocket connection handler.
-  io.on('connection', (socket) => {
-    console.log(`A user connected: ${socket.id}`);
-    
-    socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.id}`);
+    io.on('connection', socket=>{
+        console.log(`User connected: ${socket.id}`);
+        socket.on('disconnect', ()=>console.log(`User disconnected: ${socket.id}`));
     });
-  });
 
-  // Start the HTTP server.
-  server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
+    server.listen(PORT,()=>console.log(`Server running on http://localhost:${PORT}`));
 }
 
 main();
