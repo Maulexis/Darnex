@@ -12,9 +12,9 @@ import os
 
 # Define database connection parameters (edit as needed)
 DB_PARAMS = {
-    'dbname': 'railway_ai',
+    'dbname': 'railway_sim_db',
     'user': 'postgres',
-    'password': 'pj925fhpp5', # Your actual password
+    'password': 'Themedaksh990', # Your actual password
     'host': 'localhost',
     'port': 5432
 }
@@ -74,6 +74,7 @@ df_ma['delay_minutes'].fillna(0, inplace=True) # Assume no delay if data is miss
 # Renamed 'train_type' to 'type' and 'speed' to 'speed_kmph'.
 # Fill potential NaN values in feature columns
 df_ma['type'].fillna('Unknown', inplace=True)
+print("Columns in DataFrame df_ma:", df_ma.columns.tolist())
 df_ma['speed_kmph'].fillna(0, inplace=True)
 
 X_delay = df_ma[['type', 'speed_kmph']].copy()
