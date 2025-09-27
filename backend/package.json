@@ -1,6 +1,8 @@
+
 {
     "name": "railway-sim-backend",
     "version": "1.0.0",
+    "type": "module",
     "description": "Backend for a railway traffic management & simulation system.",
     "main": "src/server.js",
     "scripts": {
@@ -12,6 +14,7 @@
     "author": "Daksh",
     "license": "ISC",
     "dependencies": {
+        "@faker-js/faker": "^10.0.0",
         "express": "^4.19.2",
         "pg": "^8.16.3",
         "redis": "^4.6.15",
