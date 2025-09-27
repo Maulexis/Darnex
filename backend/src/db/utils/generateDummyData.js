@@ -264,28 +264,41 @@ async function insertHistoricalData(client, target = 50000) {
 }
 
 /* 9) Real-time positions (~10000) */
+
 async function insertRealTimePositions(client, target = 10000) {
-  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const tracks = (await client.query("SELECT id, distance_km FROM tracks")).rows;
-  if (!trainIds.length || !tracks.length) {
-    console.warn("⚠️ Missing trains or tracks for real-time positions.");
-    return 0;
+    const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
+    const tracks = (await client.query("SELECT id, distance_km FROM tracks")).rows;
+    if (!trainIds.length || !tracks.length) {
+      console.warn("⚠️ Missing trains or tracks for real-time positions.");
+      return 0;
+    }
+  
+    const inserts = [];
+    for (let i = 0; i < target; i++) {
+      const train_id = faker.helpers.arrayElement(trainIds);
+      const track = faker.helpers.arrayElement(tracks);
+      const ts = faker.date.recent(7);
+      const pos = faker.number.float({ min: 0, max: Number(track.distance_km), precision: 0.01 });
+  
+      // Train speed: mostly 60–90, but allow up to 120
+      const speed = faker.number.int({ min: 60, max: 90 });
+      const occasionalBoost = Math.random() < 0.1 ? faker.number.int({ min: 91, max: 120 }) : null;
+      const finalSpeed = occasionalBoost || speed;
+  
+      inserts.push([train_id, track.id, ts, pos, finalSpeed]);
+    }
+  
+    const inserted = await bulkInsert(
+        client,
+        "real_time_positions",
+        ["train_id", "track_id", "timestamp", "position_km", "speed_kmph"],
+        inserts
+      );
+      
+  
+    console.log(`✅ Real-time positions inserted (~${inserted}).`);
+    return inserted;
   }
-
-  const inserts = [];
-  for (let i = 0; i < target; i++) {
-    const train_id = faker.helpers.arrayElement(trainIds);
-    const track = faker.helpers.arrayElement(tracks);
-    const ts = faker.date.recent(7);
-    const pos = faker.number.float({ min: 0, max: Number(track.distance_km), precision: 0.01 });
-    inserts.push([train_id, track.id, ts, pos]);
-  }
-
-  const inserted = await bulkInsert(client, "real_time_positions",
-    ["train_id", "track_id", "timestamp", "position_km"], inserts);
-  console.log(`✅ Real-time positions inserted (~${inserted}).`);
-  return inserted;
-}
 
 /* 10) Incidents (10) */
 async function insertIncidents(client, total = 10) {
