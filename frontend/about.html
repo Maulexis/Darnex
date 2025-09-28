@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - Rail Traffic Control</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+      }
+
+      header {
+        /* background: #e0e0e0; */
+        background: #003366;
+        color: white;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        font-weight: bold;
+      }
+
+      header img {
+        height: 40px;
+        border-radius: 5px;
+      }
+      header .title {
+        flex-grow: 1;
+        text-align: center;
+        font-size: 30px;
+        min-width: 150px;
+      }
+      header .buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      header button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        background: white;
+        color: black;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+      }
+      header button:hover {
+        background: #003366;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      main {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+          text-align: center;
+        }
+        header .buttons {
+          justify-content: center;
+          margin-top: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <img src="hermex fleet logo.jpg" alt="Logo" />
+      </div>
+      <div class="title">Rail Traffic Control</div>
+      <div class="buttons">
+        <button onclick="location.href='trainfirstbase.html'">Home</button>
+        <button onclick="location.href='performance.html'">Performance</button>
+        <button onclick="location.href='help.html'">Help</button>
+      </div>
+    </header>
+
+    <main>
+      <h1>About Rail Traffic Control</h1>
+      <p>
+        Rail Traffic Control is a centralized system that monitors and manages
+        train movements efficiently. It ensures safety, optimal track usage, and
+        timely operations across complex railway networks.
+      </p>
+      <p>
+        The system uses AI-powered recommendations to assist train traffic
+        controllers in making quick and effective decisions, such as rerouting
+        trains, delaying departures, and managing congestion.
+      </p>
+      <p>
+        By leveraging advanced analytics and real-time monitoring, this platform
+        minimizes delays, reduces risks, and ensures a smooth railway operation.
+      </p>
+    </main>
+  </body>
+</html>
