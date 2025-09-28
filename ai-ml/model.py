@@ -63,8 +63,8 @@ df_ma = df_ma.merge(timetable_events, on='train_id', how='left')
 
 # Example feature engineering: convert times, get delay durations
 # <-- FIX: Use actual column names 'actual_arrival' and 'scheduled_arrival'
-df_ma['actual_arrival'] = pd.to_datetime(df_ma['actual_arrival'],utc=True)
-df_ma['scheduled_arrival'] = pd.to_datetime(df_ma['scheduled_arrival'], utc=True)
+df_ma['actual_arrival'] = pd.to_datetime(df_ma['actual_arrival_move'],utc=True)
+df_ma['scheduled_arrival'] = pd.to_datetime(df_ma['scheduled_arrival_event'], utc=True)
 # Fill NaNs that result from merges or missing data before calculation
 df_ma['delay_minutes'] = (df_ma['actual_arrival'] - df_ma['scheduled_arrival']).dt.total_seconds() / 60.0
 df_ma['delay_minutes'].fillna(0, inplace=True) # Assume no delay if data is missing
