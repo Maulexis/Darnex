@@ -1,4 +1,4 @@
--- 🚨 Reset schema
+-- Reset schema (full replacement)
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
 
@@ -9,7 +9,10 @@ CREATE TABLE stations (
     id SERIAL PRIMARY KEY,
     code VARCHAR(10) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
-    distance_from_jaipur NUMERIC(5,2) NOT NULL
+    lat NUMERIC(9,6),
+    lon NUMERIC(9,6),
+    distance_from_jaipur NUMERIC(6,2), -- added to match generator's inserts
+    attributes JSONB
 );
 
 -- ======================
@@ -18,29 +21,33 @@ CREATE TABLE stations (
 CREATE TABLE platforms (
     id SERIAL PRIMARY KEY,
     station_id INT REFERENCES stations(id) ON DELETE CASCADE,
-    platform_no INT NOT NULL,
+    platform_no VARCHAR(10) NOT NULL,
+    length_m INT,
     UNIQUE (station_id, platform_no)
 );
 
 -- ======================
--- 3. Tracks (between stations)
+-- 3. Tracks
 -- ======================
 CREATE TABLE tracks (
     id SERIAL PRIMARY KEY,
     from_station INT REFERENCES stations(id) ON DELETE CASCADE,
     to_station INT REFERENCES stations(id) ON DELETE CASCADE,
-    distance_km NUMERIC(5,2) NOT NULL,
+    distance_km NUMERIC(7,2), -- REQUIRED by generator
+    length_m INT,             -- legacy / optional
+    type VARCHAR(50),
+    allowed_speed INT,
     UNIQUE (from_station, to_station)
 );
 
 -- ======================
--- 4. Signals
+-- 4. Signals (NEW — required by generator)
 -- ======================
 CREATE TABLE signals (
     id SERIAL PRIMARY KEY,
     track_id INT REFERENCES tracks(id) ON DELETE CASCADE,
-    position_km NUMERIC(5,2) NOT NULL,
-    status VARCHAR(20) DEFAULT 'GREEN'
+    position_km NUMERIC(7,3) NOT NULL,
+    status VARCHAR(10) NOT NULL CHECK (status IN ('GREEN','YELLOW','RED'))
 );
 
 -- ======================
@@ -50,7 +57,9 @@ CREATE TABLE trains (
     id SERIAL PRIMARY KEY,
     train_no VARCHAR(20) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
-    type VARCHAR(50) DEFAULT 'Passenger'
+    type VARCHAR(50) DEFAULT 'Passenger',
+    capacity INT,
+    length INT
 );
 
 -- ======================
@@ -64,11 +73,14 @@ CREATE TABLE timetable_events (
     scheduled_departure TIMESTAMP,
     actual_arrival TIMESTAMP,
     actual_departure TIMESTAMP,
-    delay_minutes INT DEFAULT 0
+    delay_minutes INT DEFAULT 0,
+    platform_no VARCHAR(10),
+    order_no INT,
+    UNIQUE(train_id, order_no)
 );
 
 -- ======================
--- 7. Train Movements (per track segment)
+-- 7. Train Movements
 -- ======================
 CREATE TABLE train_movements (
     id SERIAL PRIMARY KEY,
@@ -87,7 +99,7 @@ CREATE TABLE historical_data (
     train_id INT REFERENCES trains(id) ON DELETE CASCADE,
     station_id INT REFERENCES stations(id),
     event_time TIMESTAMP,
-    event_type VARCHAR(50), -- arrival, departure, signal_passed, etc
+    event_type VARCHAR(50),
     delay_minutes INT DEFAULT 0
 );
 
@@ -99,7 +111,8 @@ CREATE TABLE real_time_positions (
     train_id INT REFERENCES trains(id) ON DELETE CASCADE,
     track_id INT REFERENCES tracks(id),
     timestamp TIMESTAMP NOT NULL,
-    position_km NUMERIC(5,2)
+    position_km NUMERIC(6,3),
+    speed_kmph NUMERIC(5,2) -- ADDED to match generator
 );
 
 -- ======================
@@ -122,7 +135,7 @@ CREATE TABLE weather_records (
     station_id INT REFERENCES stations(id),
     recorded_at TIMESTAMP NOT NULL,
     temperature NUMERIC(5,2),
-    rainfall_mm NUMERIC(5,2),
+    rainfall_mm NUMERIC(6,2),
     visibility_km NUMERIC(5,2)
 );
 
@@ -131,6 +144,7 @@ CREATE TABLE weather_records (
 -- ======================
 CREATE TABLE safety_scenarios (
     id SERIAL PRIMARY KEY,
+    station_id INT REFERENCES stations(id),
     scenario_time TIMESTAMP NOT NULL,
     description TEXT,
     severity VARCHAR(20)
@@ -148,7 +162,7 @@ CREATE TABLE congestion_data (
 );
 
 -- ======================
--- ✅ Indexes for performance
+-- Indexes
 -- ======================
 CREATE INDEX idx_trains_no ON trains(train_no);
 CREATE INDEX idx_tt_train ON timetable_events(train_id);

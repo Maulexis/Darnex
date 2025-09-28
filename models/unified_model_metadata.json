@@ -1,0 +1,63 @@
+{
+  "training_timestamp": "2025-09-28T00:25:08.160857",
+  "dataset_info": {
+    "total_records": 107524,
+    "features_engineered": 49,
+    "training_records": 86019,
+    "test_records": 21505
+  },
+  "model_performance": {
+    "delay_prediction": {
+      "best_model": "Random Forest",
+      "test_mae": 551.9797366280536,
+      "cv_mae": 556.5612147342665,
+      "feature_count": 26
+    },
+    "decision_making": {
+      "accuracy": 1.0,
+      "classes": [
+        "proceed",
+        "reduce_speed",
+        "reroute"
+      ],
+      "feature_count": 28
+    },
+    "delay_reasoning": {
+      "accuracy": 1.0,
+      "classes": [
+        "none"
+      ]
+    }
+  },
+  "feature_engineering": {
+    "cyclical_time_features": [
+      "hour_sin",
+      "hour_cos",
+      "day_sin",
+      "day_cos"
+    ],
+    "contextual_features": [
+      "operational_difficulty",
+      "station_congestion",
+      "speed_efficiency"
+    ],
+    "historical_features": [
+      "previous_delay",
+      "avg_delay_last_3",
+      "avg_speed_last_3"
+    ]
+  },
+  "network_topology": {
+    "stations": 24,
+    "tracks": 66,
+    "average_degree": 5.5
+  },
+  "improvements_implemented": [
+    "Unified feature space across all models",
+    "Expert knowledge engineering for labels",
+    "Cyclical time feature encoding",
+    "Advanced contextual feature engineering",
+    "Time-series aware validation",
+    "Integrated decision-making with delay prediction"
+  ]
+}

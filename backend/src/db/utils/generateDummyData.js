@@ -7,7 +7,31 @@
 
 import pool from "../../services/db.js";
 import { faker } from "@faker-js/faker";
+// This is the modern ES Module syntax
+import 'dotenv/config';
 
+// Test the connection
+pool.on('connect', () => {
+  console.log('✅ Database connection pool created successfully.');
+});
+
+pool.on('error', (err) => {
+  console.error('❌ Unexpected error on idle client', err);
+  process.exit(-1);
+});
+
+export default pool;
+
+
+// --- ADD THIS DEBUGGING CODE ---
+console.log('--- Checking Environment Variables ---');
+console.log('DB User:', process.env.DB_USER);
+console.log('DB Password:', process.env.DB_PASSWORD);
+console.log('DB Database:', process.env.DB_DATABASE);
+console.log('------------------------------------');
+// --- END OF DEBUGGING CODE ---
+
+// The rest of your script's code follows...
 /* CONFIG */
 const CHUNK = 1000;
 
@@ -40,22 +64,21 @@ async function bulkInsert(client, table, columns, rows, chunkSize = CHUNK) {
 
 /* USER-SUPPLIED / FIXED STATIONS (you asked these exact ones) */
 const FIXED_STATIONS = [
-  { code: "BSGD", name: "Bais Godam", distance: 2.0 },
-  { code: "DKBJ", name: "Dahar Ka Balaji", distance: 3.0 },
-  { code: "GADJ", name: "Jaipur Gandhinagar", distance: 5.0 },
-  { code: "DPA",  name: "Durgapura", distance: 7.0 },
-  { code: "KKU",  name: "Kanakpura", distance: 9.0 },
-  { code: "GTJT", name: "Getor Jagatpura", distance: 11.0 },
-  { code: "NDH",  name: "Nindhar Benar", distance: 11.0 },
-  { code: "SNGN", name: "Sanganer", distance: 12.0 },
-  { code: "BDYK", name: "Bindayaka", distance: 14.0 },
-  { code: "KWP",  name: "Khatipura", distance: 17.0 }
+    { code: "JP", name: "Jaipur Junction", distance: 0.0, lat: 26.9245, lon: 75.7873, attributes: { "is_junction": true, "zone": "NWR" } },
+    { code: "BSGD", name: "Bais Godam", distance: 2.0, lat: 26.908, lon: 75.782, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "DKBJ", name: "Dahar Ka Balaji", distance: 3.0, lat: 26.948, lon: 75.758, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "GADJ", name: "Jaipur Gandhinagar", distance: 5.0, lat: 26.877, lon: 75.808, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "DPA", name: "Durgapura", distance: 7.0, lat: 26.855, lon: 75.790, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "KKU", name: "Kanakpura", distance: 9.0, lat: 26.892, lon: 75.720, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "GTJT", name: "Getor Jagatpura", distance: 11.0, lat: 26.845, lon: 75.845, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "SNGN", name: "Sanganer", distance: 12.0, lat: 26.825, lon: 75.780, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "BDYK", name: "Bindayaka", distance: 14.0, lat: 26.923, lon: 75.660, attributes: { "is_junction": false, "zone": "NWR" } },
+    { code: "KWP", name: "Khatipura", distance: 17.0, lat: 26.950, lon: 75.710, attributes: { "is_junction": false, "zone": "NWR" } }
 ];
-
 /* 1) Stations */
 async function insertStations(client) {
-  const rows = FIXED_STATIONS.map(s => [s.code, s.name, s.distance]);
-  const inserted = await bulkInsert(client, "stations", ["code", "name", "distance_from_jaipur"], rows);
+  const rows = FIXED_STATIONS.map(s => [s.code, s.name, s.distance, s.lat, s.lon, JSON.stringify(s.attributes)]);
+  const inserted = await bulkInsert(client, "stations", ["code", "name", "distance_from_jaipur", "lat", "lon", "attributes"], rows);
   console.log(`✅ Stations inserted (${inserted}).`);
   // return full station rows (id, code)
   const res = await client.query("SELECT id, code FROM stations ORDER BY id");
@@ -64,70 +87,64 @@ async function insertStations(client) {
 
 /* 2) Platforms */
 async function insertPlatforms(client) {
-  const { rows: stations } = await client.query("SELECT id, code FROM stations ORDER BY id");
-  if (!stations.length) {
-    console.warn("⚠️ No stations available for platforms.");
-    return [];
-  }
-
-  const inserts = [];
-  for (let i = 0; i < stations.length; i++) {
-    const s = stations[i];
-    // Make the first station have 5 platforms (mimic Jaipur logic), others 2-3
-    const count = (i === 0) ? 5 : faker.number.int({ min: 2, max: 3 });
-    for (let p = 1; p <= count; p++) {
-      inserts.push([s.id, p]);
+    const { rows: stations } = await client.query("SELECT id FROM stations");
+    if (!stations.length) {
+        console.warn("⚠️ No stations available for platforms.");
+        return [];
     }
-  }
-
-  const inserted = await bulkInsert(client, "platforms", ["station_id", "platform_no"], inserts);
-  console.log(`✅ Platforms inserted (${inserted}).`);
-  const res = await client.query("SELECT id, station_id, platform_no FROM platforms ORDER BY id");
-  return res.rows;
+    const inserts = [];
+    for (const s of stations) {
+        const length_m = faker.number.int({ min: 400, max: 800 });
+        const count = faker.number.int({ min: 2, max: 5 });
+        for (let p = 1; p <= count; p++) {
+            inserts.push([s.id, p, length_m]);
+        }
+    }
+    const inserted = await bulkInsert(client, "platforms", ["station_id", "platform_no", "length_m"], inserts);
+    console.log(`✅ Platforms inserted (${inserted}).`);
 }
 
 /* 3) Tracks */
 async function insertTracks(client) {
-  const stations = (await client.query("SELECT id, code FROM stations ORDER BY id")).rows;
-  if (stations.length < 2) {
-    console.warn("⚠️ Not enough stations to create tracks.");
-    return [];
-  }
-
-  const inserts = [];
-
-  // Connect first (hub) station to all others (one-way)
-  const hub = stations[0];
-  for (const s of stations) {
-    if (s.id === hub.id) continue;
-    inserts.push([hub.id, s.id, faker.number.float({ min: 5, max: 120, precision: 0.01 })]);
-  }
-
-  // Connect adjacent pairs (bidirectional sometimes)
-  for (let i = 0; i < stations.length - 1; i++) {
-    const a = stations[i].id;
-    const b = stations[i + 1].id;
-    inserts.push([a, b, faker.number.float({ min: 5, max: 120, precision: 0.01 })]);
-    if (Math.random() < 0.5) {
-      inserts.push([b, a, faker.number.float({ min: 5, max: 120, precision: 0.01 })]);
+    const { rows: stations } = await client.query("SELECT id FROM stations");
+    if (stations.length < 2) {
+        console.warn("⚠️ Not enough stations to create tracks.");
+        return [];
     }
-  }
 
-  // Deduplicate by from_to
-  const seen = new Set();
-  const unique = [];
-  for (const r of inserts) {
-    const key = `${r[0]}_${r[1]}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(r);
+    const inserts = [];
+    const seen = new Set();
+
+    // Create a more connected network
+    for (let i = 0; i < stations.length; i++) {
+        for (let j = i + 1; j < stations.length; j++) {
+            if (Math.random() < 0.3) { // Create tracks between ~30% of station pairs
+                const fromStation = stations[i].id;
+                const toStation = stations[j].id;
+                const key = `${fromStation}_${toStation}`;
+
+                if (!seen.has(key)) {
+                    const distance_km = faker.number.float({ min: 5, max: 25, precision: 0.1 });
+                    const length_m = distance_km * 1000;
+                    const type = faker.helpers.arrayElement(['double-line', 'single-line', 'electrified']);
+                    const allowed_speed = faker.helpers.arrayElement([80, 100, 120, 140]);
+
+                    inserts.push([fromStation, toStation, distance_km, length_m, type, allowed_speed]);
+                    seen.add(key);
+
+                    if (Math.random() < 0.5) {
+                        const revKey = `${toStation}_${fromStation}`;
+                         if (!seen.has(revKey)) {
+                            inserts.push([toStation, fromStation, distance_km, length_m, type, allowed_speed]);
+                            seen.add(revKey);
+                         }
+                    }
+                }
+            }
+        }
     }
-  }
-
-  const inserted = await bulkInsert(client, "tracks", ["from_station", "to_station", "distance_km"], unique);
-  console.log(`✅ Tracks inserted (${inserted}).`);
-  const res = await client.query("SELECT id, from_station, to_station, distance_km FROM tracks ORDER BY id");
-  return res.rows;
+    const inserted = await bulkInsert(client, "tracks", ["from_station", "to_station", "distance_km", "length_m", "type", "allowed_speed"], inserts);
+    console.log(`✅ Tracks inserted (${inserted}).`);
 }
 
 /* 4) Signals (~75) */
@@ -154,86 +171,135 @@ async function insertSignals(client, target = 75) {
 
 /* 5) Trains (500) */
 async function insertTrains(client, total = 500) {
-  const inserts = [];
-  const used = new Set();
+    const inserts = [];
+    const used = new Set();
+    const trainTypes = ["Passenger", "Express", "Superfast", "Goods", "MEMU"];
+    const priorityMap = { "Superfast": 1, "Express": 2, "Passenger": 3, "MEMU": 4, "Goods": 5 };
 
-  function genUniqueTrainNo() {
-    let v;
-    do {
-      v = faker.number.int({ min: 10000, max: 99999 }).toString();
-    } while (used.has(v));
-    used.add(v);
-    return v;
-  }
+    function genUniqueTrainNo() {
+        let v;
+        do { v = faker.number.int({ min: 10000, max: 99999 }).toString(); } while (used.has(v));
+        used.add(v);
+        return v;
+    }
 
-  for (let i = 0; i < total; i++) {
-    inserts.push([
-      genUniqueTrainNo(),
-      `${faker.word.adjective({ length: { min: 3, max: 10 } })} ${faker.word.noun({ length: { min: 3, max: 10 } })} Express`.slice(0, 95),
-      faker.helpers.arrayElement(["Passenger", "Express", "Superfast", "Goods", "MEMU"]),
-      faker.number.int({ min: 100, max: 1200 }), // capacity
-      faker.number.int({ min: 50, max: 600 })   // length (approx)
-    ]);
-  }
-
-  const inserted = await bulkInsert(client, "trains", ["train_no", "name", "type", "capacity", "length"], inserts);
-  console.log(`✅ Trains inserted (${inserted}).`);
-  const res = await client.query("SELECT id FROM trains");
-  return res.rows.map(r => r.id);
+    for (let i = 0; i < total; i++) {
+        const type = faker.helpers.arrayElement(trainTypes);
+        inserts.push([
+            genUniqueTrainNo(),
+            `${faker.commerce.productName()} Express`,
+            type,
+            priorityMap[type],
+            faker.number.int({ min: 400, max: 700 })
+        ]);
+    }
+    const inserted = await bulkInsert(client, "trains", ["train_no", "name", "type", "priority", "length_m"], inserts);
+    console.log(`✅ Trains inserted (${inserted}).`);
 }
 
 /* 6) Timetable events (~10000) */
 async function insertTimetableEvents(client, target = 10000) {
-  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const stationIds = (await client.query("SELECT id FROM stations")).rows.map(r => r.id);
-  if (!trainIds.length || !stationIds.length) {
-    console.warn("⚠️ Missing trains or stations for timetable events.");
-    return 0;
-  }
+    const { rows: trainIds } = await client.query("SELECT id FROM trains");
+    const { rows: stations } = await client.query("SELECT id FROM stations");
+    const { rows: platforms } = await client.query("SELECT id, station_id FROM platforms");
 
-  const inserts = [];
-  for (let i = 0; i < target; i++) {
-    const train_id = faker.helpers.arrayElement(trainIds);
-    const station_id = faker.helpers.arrayElement(stationIds);
-    const scheduledArrival = faker.date.between({
-      from: new Date(),
-      to: new Date(Date.now() + 30 * 24 * 3600 * 1000)
-    });
-    const scheduledDeparture = new Date(scheduledArrival.getTime() + faker.number.int({ min: 1, max: 60 }) * 60000);
-    const delay = faker.number.int({ min: 0, max: 300 });
-    inserts.push([train_id, station_id, scheduledArrival, scheduledDeparture, delay]);
-  }
+    if (!trainIds.length || !stations.length || !platforms.length) {
+        console.warn("⚠️ Missing prerequisite data for timetable events.");
+        return 0;
+    }
 
-  const inserted = await bulkInsert(client, "timetable_events",
-    ["train_id", "station_id", "scheduled_arrival", "scheduled_departure", "delay_minutes"], inserts);
-  console.log(`✅ Timetable events inserted (~${inserted}).`);
-  return inserted;
+    const platformMap = new Map();
+    for (const p of platforms) {
+        if (!platformMap.has(p.station_id)) {
+            platformMap.set(p.station_id, []);
+        }
+        platformMap.get(p.station_id).push(p.id);
+    }
+
+    const insertsByTrain = new Map();
+
+    for (let i = 0; i < target; i++) {
+        const train_id = faker.helpers.arrayElement(trainIds).id;
+        const station_id = faker.helpers.arrayElement(stations).id;
+
+        if (!insertsByTrain.has(train_id)) {
+            insertsByTrain.set(train_id, []);
+        }
+        insertsByTrain.get(train_id).push({ station_id });
+    }
+
+    const finalInserts = [];
+    for (const [train_id, events] of insertsByTrain.entries()) {
+        let lastDeparture = faker.date.soon({ days: 30 });
+
+        events.sort((a, b) => a.station_id - b.station_id).forEach((event, index) => {
+            const station_id = event.station_id;
+            const availablePlatforms = platformMap.get(station_id);
+            if (!availablePlatforms) return;
+
+            const scheduled_arrival = new Date(lastDeparture.getTime() + faker.number.int({ min: 30, max: 180 }) * 60000);
+            const scheduled_departure = new Date(scheduled_arrival.getTime() + faker.number.int({ min: 2, max: 15 }) * 60000);
+
+            const delay_minutes = faker.number.int({ min: 0, max: 45 });
+            const actual_arrival = new Date(scheduled_arrival.getTime() + delay_minutes * 60000);
+            const actual_departure = new Date(scheduled_departure.getTime() + delay_minutes * 60000);
+
+            const platform_no = faker.helpers.arrayElement(availablePlatforms);
+            const order_no = index + 1;
+
+            finalInserts.push([
+                train_id, station_id, scheduled_arrival, scheduled_departure,
+                actual_arrival, actual_departure, delay_minutes, platform_no, order_no
+            ]);
+
+            lastDeparture = scheduled_departure;
+        });
+    }
+
+    const inserted = await bulkInsert(client, "timetable_events",
+        ["train_id", "station_id", "scheduled_arrival", "scheduled_departure", "actual_arrival", "actual_departure", "delay_minutes", "platform_no", "order_no"],
+        finalInserts
+    );
+    console.log(`✅ Timetable events inserted (~${inserted}).`);
 }
 
 /* 7) Train movements (~50000) */
 async function insertTrainMovements(client, target = 50000) {
-  const trainIds = (await client.query("SELECT id FROM trains")).rows.map(r => r.id);
-  const tracks = (await client.query("SELECT id, distance_km FROM tracks")).rows;
-  if (!trainIds.length || !tracks.length) {
-    console.warn("⚠️ Missing trains or tracks for train movements.");
-    return 0;
-  }
+    const { rows: trainIds } = await client.query("SELECT id FROM trains");
+    const { rows: tracks } = await client.query("SELECT id, distance_km FROM tracks");
 
-  const inserts = [];
-  for (let i = 0; i < target; i++) {
-    const train_id = faker.helpers.arrayElement(trainIds);
-    const track = faker.helpers.arrayElement(tracks);
-    const entry = faker.date.recent(30);
-    const travelMinutes = Math.max(1, Math.round(Number(track.distance_km) / faker.number.float({ min: 0.3, max: 2.5 })));
-    const exit = new Date(entry.getTime() + travelMinutes * 60 * 1000);
-    const delay = faker.number.int({ min: 0, max: 120 });
-    inserts.push([train_id, track.id, entry, exit, delay]);
-  }
+    if (!trainIds.length || !tracks.length) {
+        console.warn("⚠️ Missing prerequisite data for train movements.");
+        return 0;
+    }
 
-  const inserted = await bulkInsert(client, "train_movements",
-    ["train_id", "track_id", "entry_time", "exit_time", "delay_minutes"], inserts);
-  console.log(`✅ Train movements inserted (~${inserted}).`);
-  return inserted;
+    const inserts = [];
+    for (let i = 0; i < target; i++) {
+        const train_id = faker.helpers.arrayElement(trainIds).id;
+        const track = faker.helpers.arrayElement(tracks);
+
+        const entry_time = faker.date.recent({ days: 30 });
+        const travelMinutes = Math.max(5, (Number(track.distance_km) / faker.number.int({ min: 60, max: 120 })) * 60);
+        const exit_time = new Date(entry_time.getTime() + travelMinutes * 60000);
+
+        const delay_minutes = faker.number.int({ min: 0, max: 20 });
+        const actual_arrival = new Date(exit_time.getTime() + delay_minutes * 60000);
+
+        const travelHours = travelMinutes / 60;
+        const speed_kmph = travelHours > 0 ? (Number(track.distance_km) / travelHours).toFixed(2) : 0;
+
+        const status = delay_minutes > 10 ? 'DELAYED' : faker.helpers.arrayElement(['IN_TRANSIT', 'ON_TIME']);
+
+        inserts.push([
+            train_id, track.id, entry_time, exit_time, delay_minutes,
+            actual_arrival, speed_kmph, status
+        ]);
+    }
+    const inserted = await bulkInsert(client, "train_movements",
+        ["train_id", "track_id", "entry_time", "exit_time", "delay_minutes", "actual_arrival", "speed_kmph", "status"],
+        inserts
+    );
+    console.log(`✅ Train movements inserted (~${inserted}).`);
 }
 
 /* 8) Historical data (~50000) */
@@ -423,36 +489,33 @@ async function main() {
     console.log("🚉 Starting full prototype dummy data generation...");
 
     // Clean slate (truncate all our tables)
-    await client.query(`
-      TRUNCATE TABLE
-        congestion_data,
-        safety_scenarios,
-        weather_records,
-        incidents,
-        real_time_positions,
-        historical_data,
-        train_movements,
-        timetable_events,
-        signals,
-        trains,
-        tracks,
-        platforms,
-        stations
-      RESTART IDENTITY CASCADE;
-    `);
+await client.query(`
+  TRUNCATE TABLE
+    congestion_data,
+    safety_scenarios,
+    weather_records,
+    incidents,
+    real_time_positions,
+    historical_data,
+    train_movements,
+    timetable_events,
+    trains
+  RESTART IDENTITY CASCADE;
+`);
+
     console.log("✅ Tables truncated.");
 
-    // 1 Stations
-    await insertStations(client);
+    // // 1 Stations
+    // await insertStations(client);
 
-    // 2 Platforms
-    await insertPlatforms(client);
+    // // 2 Platforms
+    // await insertPlatforms(client);
 
-    // 3 Tracks
-    await insertTracks(client);
+    // // 3 Tracks
+    // await insertTracks(client);
 
-    // 4 Signals (create after tracks so they can reference track ids)
-    await insertSignals(client, 75);
+    // // 4 Signals (create after tracks so they can reference track ids)
+    // await insertSignals(client, 75);
 
     // 5 Trains
     await insertTrains(client, 500);
@@ -487,9 +550,11 @@ console.log("✅ Safety scenarios inserted.");
     console.log("🎉 Dummy data generation complete!");
   } catch (err) {
     console.error("❌ Error during dummy data generation:", err);
-  } finally {
+} finally {
+    console.log("🏁 Releasing database client.");
     client.release();
-  }
+    await pool.end(); // Close all connections in the pool
+}
 }
 
 main().catch(err => {

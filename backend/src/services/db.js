@@ -1,11 +1,12 @@
+import 'dotenv/config';
 import pg from "pg";
 const { Pool } = pg;
 
 const pool = new Pool({
   user: "postgres",
   host: "localhost",
-  database: "railway_sim_db",
-  password: "Themedaksh990",
+  database: "railway_ai",
+  password: "pj925fhpp5",
   port: 5432,
 });
 

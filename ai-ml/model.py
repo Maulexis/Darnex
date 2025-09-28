@@ -35,7 +35,7 @@ warnings.filterwarnings('ignore')
 # =============================================================================
 
 DB_PARAMS = {
-    'dbname': 'railway_sim_db',
+    'dbname': 'railway_ai',
     'user': 'postgres',
     'password': 'pj925fhpp5',
     'host': 'localhost',
@@ -73,9 +73,21 @@ print("\n📊 Loading comprehensive railway data...")
 
 train_movements = load_data("SELECT * FROM train_movements ORDER BY actual_arrival;", conn)
 trains = load_data("SELECT * FROM trains;", conn)
-tracks = load_data("SELECT * FROM tracks;", conn)
+tracks = load_data("SELECT id AS track_id, to_station FROM tracks;", conn)
+# 2️⃣ Map track_id → to_station
+track_map = tracks.set_index("track_id")["to_station"].to_dict()
 timetable_events = load_data("SELECT * FROM timetable_events ORDER BY scheduled_arrival;", conn)
+# 3️⃣ Add current_station column
+train_movements["current_station"] = train_movements["track_id"].map(track_map)
 
+# 4️⃣ Merge with timetable_events
+df = train_movements.merge(
+    timetable_events,
+    left_on=["train_id", "current_station"],
+    right_on=["train_id", "station_id"],
+    how="left",
+    suffixes=("_move", "_event")
+)
 # Validate data availability
 if train_movements.empty or trains.empty or timetable_events.empty:
     print("❌ Error: Essential tables are empty. Please run generate_data.py first.")
@@ -105,7 +117,8 @@ print(f"   ✅ Unified DataFrame created: {len(df):,} records")
 
 # Step 2: Time processing and delay calculation
 print("   ⏰ Processing time and delay metrics...")
-df['actual_arrival'] = pd.to_datetime(df['actual_arrival'], utc=True)
+df['actual_arrival'] = pd.to_datetime(df['actual_arrival_move'], utc=True)
+
 df['scheduled_arrival'] = pd.to_datetime(df['scheduled_arrival'], utc=True)
 
 # Calculate primary delay metric
@@ -133,6 +146,11 @@ df['is_night_time'] = df['hour_of_day'].isin([22, 23, 0, 1, 2, 3, 4, 5]).astype(
 
 # Step 4: Fill missing values before advanced feature creation
 print("   🛠️  Handling missing values...")
+# Check actual columns after merge
+print(df.columns.tolist())
+# Rename if merged suffixes added
+if 'speed_kmph_move' in df.columns:
+    df.rename(columns={'speed_kmph_move': 'speed_kmph'}, inplace=True)
 df['speed_kmph'].fillna(df['speed_kmph'].mean(), inplace=True)
 df['priority'].fillna(df['priority'].median(), inplace=True)
 df['type'].fillna('passenger', inplace=True)  # Most common type
