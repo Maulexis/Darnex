@@ -359,3 +359,8 @@ print("   - models/phase1_metadata.json")
 #dhruv you have to continue from here 
 
 
+<<<<<<< HEAD
+=======
+# Close database connection
+conn.close()
+>>>>>>> 230ee4cd325408633d0b9f99b0f49a4c546452d3
