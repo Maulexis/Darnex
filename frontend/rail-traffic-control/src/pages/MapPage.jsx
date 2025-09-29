@@ -1,82 +1,210 @@
-// src/pages/MapPage.jsx
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix Leaflet marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
+
+// Demo stations
+const stations = {
+  Jaipur: [26.9124, 75.7873],
+  Delhi: [28.6139, 77.209],
+  Mumbai: [19.076, 72.8777],
+  Kolkata: [22.5726, 88.3639],
+};
 
 export default function MapPage() {
-  const [fullMap, setFullMap] = useState(false);
+  const navigate = useNavigate();
+  const [fromStation, setFromStation] = useState("");
+  const [toStation, setToStation] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [aiDecisions, setAiDecisions] = useState({});
 
-  const trains = [
-    { id: 1, name: 'Express 101', arrival: '12:30', platform: 2, moving: 'No' },
-    { id: 2, name: 'Superfast 202', arrival: '12:45', platform: 4, moving: 'Yes' },
-    { id: 3, name: 'Passenger 303', arrival: '13:00', platform: 1, moving: 'No' },
+  const aiInsights = [
+    "Divert Rajdhani Express to Platform 3 at Delhi.",
+    "Prioritize Express trains over Local Passengers.",
+    "Reroute via Kota to reduce Jaipur–Delhi congestion.",
+    "Predictive delay: Shatabdi +15 mins.",
   ];
 
+  const handleDecision = (index, decision) => {
+    setAiDecisions((prev) => ({ ...prev, [index]: decision }));
+  };
+
   return (
-    <div style={styles.page}>
-      <div style={{ flex: 2, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <MapContainer
-            center={[28.6139, 77.2090]} // Delhi coords
-            zoom={12}
-            style={{ height: fullMap ? '600px' : '400px', width: '100%' }}
-          >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <Marker position={[28.6139, 77.2090]}>
-              <Popup>New Delhi Station</Popup>
+    <div className="relative h-screen w-screen p-4 bg-gray-100">
+      {/* Map */}
+      <div
+        style={{
+          height: "400px",
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          position: "relative",
+        }}
+      >
+        <MapContainer
+          center={[22.9734, 78.6569]}
+          zoom={5}
+          style={{ height: "100%", width: "100%" }}
+        >
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {Object.entries(stations).map(([name, pos]) => (
+            <Marker key={name} position={pos}>
+              <Popup>{name}</Popup>
             </Marker>
-          </MapContainer>
-          <button style={styles.fullBtn} onClick={() => setFullMap(!fullMap)}>
-            {fullMap ? 'Shrink Map' : 'Show Full Map'}
-          </button>
-        </div>
-        <div style={styles.aiBox}>
-          <h3>AI Instructions</h3>
-          <p>Divert train Express 101 to Platform 3 to reduce congestion.</p>
-        </div>
-      </div>
-      <div style={styles.rightPanel}>
-        <h3>Train Details (Live)</h3>
-        <marquee direction="up" scrollamount="2" height="400px">
-          {trains.map((t) => (
-            <div key={t.id} style={styles.trainCard}>
-              <strong>{t.name}</strong><br />
-              Arrival: {t.arrival}<br />
-              Platform: {t.platform}<br />
-              Moving: {t.moving}
-            </div>
           ))}
-        </marquee>
+          {submitted && stations[fromStation] && stations[toStation] && (
+            <Polyline
+              positions={[stations[fromStation], stations[toStation]]}
+              color="red"
+            />
+          )}
+        </MapContainer>
       </div>
+
+      {/* Station Select */}
+      <div className="mt-4 flex gap-2">
+        <select
+          value={fromStation}
+          onChange={(e) => setFromStation(e.target.value)}
+          className="border p-1 rounded w-40"
+        >
+          <option value="">From Station</option>
+          {Object.keys(stations).map((station) => (
+            <option key={station} value={station}>
+              {station}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={toStation}
+          onChange={(e) => setToStation(e.target.value)}
+          className="border p-1 rounded w-40"
+        >
+          <option value="">To Station</option>
+          {Object.keys(stations).map((station) => (
+            <option key={station} value={station}>
+              {station}
+            </option>
+          ))}
+        </select>
+
+        <button
+          onClick={() => setSubmitted(true)}
+          style={{
+            padding: "5px 10px",
+            background: "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Show Route
+        </button>
+      </div>
+            {/* Heading below map */}
+<h2
+  style={{
+
+    marginTop: "16px",
+    fontSize: "1.5rem",
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  }}
+>
+  AI Analytics
+</h2>
+
+      {/* AI Recommendations in 3-column Grid */}
+      <div
+        className="mt-6 gap-4"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "16px",
+        }}
+      >
+        {aiInsights.map((insight, i) => (
+          <div
+            key={i}
+            className="bg-white border border-gray-300 rounded-2xl p-4 shadow"
+          >
+            <p className="text-sm">{insight}</p>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => handleDecision(i, "accepted")}
+                style={{
+                  padding: "5px 10px",
+                  background: "#28a745",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                ✅ Accept
+              </button>
+              <button
+                onClick={() => handleDecision(i, "denied")}
+                style={{
+                  padding: "5px 10px",
+                  background: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                ❌ Deny
+              </button>
+            </div>
+            {aiDecisions[i] && (
+              <p
+                style={{
+                  marginTop: "6px",
+                  fontSize: "0.9em",
+                  color: aiDecisions[i] === "accepted" ? "green" : "red",
+                  fontWeight: "bold",
+                }}
+              >
+                {aiDecisions[i] === "accepted" ? "✔ Accepted" : "✖ Denied"}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom-right button */}
+      <button
+        onClick={() => navigate("/detailed-map")}
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          padding: "10px 16px",
+          background: "#28a745",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          zIndex: 1000,
+        }}
+      >
+        Open Detailed View
+      </button>
     </div>
   );
 }
-
-const styles = {
-  page: { display: 'flex', gap: '20px', padding: '20px' },
-  fullBtn: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    padding: '8px 12px',
-    background: '#646cff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-  },
-  aiBox: { marginTop: 10, padding: 10, background: '#f3f4f6', borderRadius: 8 },
-  rightPanel: {
-    flex: 1,
-    background: '#f9fafb',
-    border: '1px solid #e5e7eb',
-    borderRadius: 8,
-    padding: 10,
-    overflow: 'hidden',
-  },
-  trainCard: {
-    padding: '8px',
-    margin: '5px 0',
-    borderBottom: '1px solid #ddd',
-  },
-};
