@@ -1,0 +1,53 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  background-color: #f9fafb;
+  color: #213547;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Buttons */
+button {
+  border-radius: 8px;
+  border: none;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+button:hover {
+  transform: translateY(-2px);
+}
+.leaflet-container {
+  width: 100%;
+  height: 400px;
+}
+
+button.active {
+  box-shadow: 0 0 0 3px rgba(100,108,255,0.12);
+  transform: translateY(-2px);
+  border: 1px solid rgba(100,108,255,0.18);
+}
+/* Variants */
+.btn-map { background-color: #28a745; }
+.btn-map:hover { background-color: #218838; }
+
+.btn-performance { background-color: #ffc107; color: #212529; }
+.btn-performance:hover { background-color: #e0a800; }
+
+.btn-scheduler { background-color: #17a2b8; }
+.btn-scheduler:hover { background-color: #117a8b; }
+
+.btn-help { background-color: #dc3545; }
+.btn-help:hover { background-color: #b02a37; }
