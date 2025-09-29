@@ -10,6 +10,7 @@ import {
   HelpCircle,
   Info,
 } from "lucide-react";
+import { color } from "chart.js/helpers";
 
 const Help = () => {
   const [faqOpen, setFaqOpen] = useState(null);
@@ -27,20 +28,33 @@ const Help = () => {
       title: "AI Recommendations",
       content: (
         <ul style={styles.ul}>
-          <li><strong>Accepted</strong> – Applied and removed from the list.</li>
-          <li><strong>Denied</strong> – Ignored and removed from the list.</li>
+          <li>
+            <strong>Accepted</strong> – Applied and removed from the list.
+          </li>
+          <li>
+            <strong>Denied</strong> – Ignored and removed from the list.
+          </li>
         </ul>
       ),
     },
     {
       icon: <Map size={22} />,
       title: "Map Section",
-      content: <p style={styles.p}>Shows key railway stations. Real-time positions in future versions.</p>,
+      content: (
+        <p style={styles.p}>
+          Shows key railway stations. Real-time positions in future versions.
+        </p>
+      ),
     },
     {
       icon: <BarChart3 size={22} />,
       title: "Detailed View",
-      content: <p style={styles.p}>Click <em>"Open Detailed View"</em> for train schedules and platform info.</p>,
+      content: (
+        <p style={styles.p}>
+          Click <em>"Open Detailed View"</em> for train schedules and platform
+          info.
+        </p>
+      ),
     },
     {
       icon: <Compass size={22} />,
@@ -76,9 +90,18 @@ const Help = () => {
       content: (
         <div>
           {[
-            { q: "How do I accept AI recommendations?", a: "Click 'Accept' next to recommendation." },
-            { q: "What if the map doesn't load?", a: "Check your internet connection and refresh." },
-            { q: "How often is the train schedule updated?", a: "Updated in real-time when data changes." },
+            {
+              q: "How do I accept AI recommendations?",
+              a: "Click 'Accept' next to recommendation.",
+            },
+            {
+              q: "What if the map doesn't load?",
+              a: "Check your internet connection and refresh.",
+            },
+            {
+              q: "How often is the train schedule updated?",
+              a: "Updated in real-time when data changes.",
+            },
           ].map((item, index) => (
             <div key={index} style={{ marginBottom: 10 }}>
               <button
@@ -109,8 +132,12 @@ const Help = () => {
       title: "Contact / Support",
       content: (
         <ul style={styles.ul}>
-          <li>Email: <strong>support@railapp.com</strong></li>
-          <li>Phone: <strong>+91-XXXXXXXXXX</strong></li>
+          <li>
+            Email: <strong>support@railapp.com</strong>
+          </li>
+          <li>
+            Phone: <strong>+91-XXXXXXXXXX</strong>
+          </li>
         </ul>
       ),
     },
@@ -134,7 +161,11 @@ const Help = () => {
         <motion.div
           key={i}
           style={styles.card}
-          whileHover={{ scale: 1.02, boxShadow: "0 8px 20px rgba(0,0,0,0.12)" }}
+          whileHover={{
+            scale: 1.02,
+            // boxShadow: "2px 8px 20px rgba(0.12,0.12,0.12,0.12)",
+            boxShadow: " 8px 8px 8px rgba(1.2,1.2,1,0.12)",
+          }}
         >
           <div style={styles.header}>
             <div style={styles.icon}>{section.icon}</div>
@@ -151,23 +182,27 @@ const Help = () => {
 const styles = {
   main: {
     padding: "30px 20px",
-    maxWidth: "1000px",
+
     margin: "auto",
     fontFamily: "Arial, sans-serif",
-    background: "#f9fafc",
+
+    background: "#00152D",
   },
   h1: {
     textAlign: "center",
     fontSize: "32px",
     marginBottom: "30px",
-    color: "#007bff",
+    color: "white",
+    textShadow: "1px 1px 5px rgba(0,0,0,0.5)",
   },
   card: {
-    background: "#fff",
+    // background: "#fff",
+    background: "#00152D",
     padding: "25px 20px",
     marginBottom: "25px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+
+    boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+    transition: "all 0.3s ease",
   },
   header: {
     display: "flex",
@@ -187,18 +222,19 @@ const styles = {
   },
   h2: {
     fontSize: "20px",
-    color: "#333",
+    color: "white",
     borderLeft: "5px solid #007bff",
     paddingLeft: "10px",
     margin: 0,
+    textShadow: "1px 1px 3px rgba(0,0,0,0.3)",
   },
   ul: {
     listStyle: "disc",
     paddingLeft: "25px",
-    color: "#555",
+    color: "#fff",
     marginTop: 0,
   },
-  p: { color: "#555", marginTop: 0 },
+  p: { color: "#fff", marginTop: 0 },
   buttonContainer: { display: "flex", gap: "10px", flexWrap: "wrap" },
   navButton: {
     background: "#007bff",
@@ -215,7 +251,7 @@ const styles = {
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #ccc",
-    background:"#1a1a1a",
+    background: "#00152D",
     cursor: "pointer",
   },
   faqAnswer: {
@@ -225,6 +261,10 @@ const styles = {
     borderRadius: "0 0 8px 8px",
     marginTop: "2px",
     color: "#555",
+    background: "#0c1a33", // dark but distinct from card
+    color: "#fff",
+    borderLeft: "4px solid #00bfff",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
   },
 };
 
