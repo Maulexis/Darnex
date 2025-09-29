@@ -1,19 +1,24 @@
-const { Pool } = require('pg');
+// src/services/db.js
+import pkg from "pg";
+const { Pool } = pkg;
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Database connection configuration.
-// Remember to replace 'your_username', 'your_password', 'your_dbname'
-// with your actual PostgreSQL credentials.
+// (pulls values from your .env file)
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'railway_sim_db',
-    password: 'Themedaksh990',
-    port: 5432,
-  });
+  user: process.env.DB_USER || "postgres",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.DB_DATABASE || "railway_sim_db",
+  password: process.env.DB_PASSWORD || "Themedaksh990",
+  port: process.env.DB_PORT || 5432,
+});
 
 // A simple function to query the database.
-const query = (text, params) => pool.query(text, params);
+export async function query(text, params) {
+  return pool.query(text, params);
+}
 
-module.exports = {
-  query,
-};
+// Default export pool (if you need raw connections)
+export default pool;

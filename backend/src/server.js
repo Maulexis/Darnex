@@ -1,59 +1,68 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const { createClient } = require('redis');
-const apiRoutes = require('./routes/api');
-const { initializeSimulation, simulateMovement } = require('./services/trainSimulator');
+// src/server.js
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import dotenv from "dotenv";
+import { createClient } from "redis";
+
+import { initializeSimulation, simulateMovement } from "./services/trainSimulator.js";
+import trainsRouter from "./routes/trains.js";
+import signalsRouter from "./routes/signals.js";
+
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: '*', // Allows all origins, adjust for production
-  }
+const io = new Server(server, { cors: { origin: "*" } });
+
+// ✅ Redis
+const redis = createClient({ url: process.env.REDIS_URL });
+redis.on("connect", () => console.log("✅ Connected to Redis!"));
+await redis.connect();
+
+// ✅ Routes
+app.use("/trains", trainsRouter);
+app.use("/signals", signalsRouter);
+
+app.get("/", (req, res) => {
+  res.json({ message: "🚂 Railway Simulation API is running!" });
 });
 
-const PORT = process.env.PORT || 3001;
+// ✅ Initialize simulation state
+await initializeSimulation();
 
-// Middleware for parsing JSON requests.
-app.use(express.json());
+// ✅ Start simulation loop
+setInterval(async () => {
+  try {
+    await simulateMovement(io); // move trains
+    // later: call updateSignals(io) to change signals dynamically
+  } catch (err) {
+    console.error("❌ Error in simulation loop:", err);
+  }
+}, 2000); // every 2 seconds (adjust speed here)
 
-// Main API routes.
-app.use('/api', apiRoutes);
+import { autoCycleSignals } from "./routes/signals.js";
 
-// Connect to Redis.
-const redisClient = createClient();
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
+// start simulation loop for trains
+setInterval(async () => {
+  try {
+    await simulateMovement(io);
+  } catch (err) {
+    console.error("❌ Error in train simulation loop:", err);
+  }
+}, 2000);
 
-async function main() {
-  await redisClient.connect();
-  console.log('Connected to Redis!');
+// start auto signal cycle loop
+setInterval(async () => {
+  try {
+    await autoCycleSignals(io);
+  } catch (err) {
+    console.error("❌ Error in signal cycle loop:", err);
+  }
+}, 5000); // every 5s change signals
 
-  // Start the train simulation logic.
-  await initializeSimulation();
-
-  // Update train positions every 5 seconds and broadcast via WebSockets.
-  setInterval(async () => {
-    try {
-      await simulateMovement(io);
-    } catch (err) {
-      console.error('Simulation loop error:', err);
-    }
-  }, 5000);
-
-  // WebSocket connection handler.
-  io.on('connection', (socket) => {
-    console.log(`A user connected: ${socket.id}`);
-    
-    socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.id}`);
-    });
-  });
-
-  // Start the HTTP server.
-  server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
-}
-
-main();
+// ✅ Start server
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => {
+  console.log(`🚉 Server running at http://localhost:${PORT}`);
+});
