@@ -1,14 +1,18 @@
+// Example: in a file like backend/src/db.js or backend/src/database.js
+
+import pg from 'pg';
+// This line loads variables from your .env file for local (non-Docker) development
 import 'dotenv/config';
-import pg from "pg";
+
 const { Pool } = pg;
 
+// The Pool will automatically use the DATABASE_URL from the environment
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "railway_ai",
-  password: "pj925fhpp5",
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  // For production deployments, you might add SSL configuration here
+  // ssl: {
+  //   rejectUnauthorized: false
+  // }
 });
 
-export const query = (text, params) => pool.query(text, params);
 export default pool;
