@@ -1,14 +1,26 @@
-import 'dotenv/config';
-import pg from "pg";
-const { Pool } = pg;
 
+// src/services/db.js
+import pkg from "pg";
+const { Pool } = pkg;
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// Database connection configuration.
+// (pulls values from your .env file)
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  user: process.env.DB_USER || "postgres",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.DB_DATABASE || "railway_sim_db",
+  password: process.env.DB_PASSWORD || "Themedaksh990",
+  port: process.env.DB_PORT || 5432,
 });
 
-// This is the NAMED export for the 'query' helper function.
-// Your api.js file is looking for this.
-export const query = (text, params) => pool.query(text, params);
+// A simple function to query the database.
+export async function query(text, params) {
+  return pool.query(text, params);
+}
 
-// This is the DEFAULT export for the entire pool object, which can also be useful.
+// Default export pool (if you need raw connections)
 export default pool;
+
