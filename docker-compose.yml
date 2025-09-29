@@ -31,15 +31,15 @@ services:
       - ./backend:/app
     environment:
       # These URLs use the service names ('db', 'redis') as hostnames
-      - DATABASE_URL=postgresql://postgres:Themedaksh990@localhost:5432/railway_sim_db
-      - REDIS_URL=redis://localhost:6379
+      - DATABASE_URL=postgresql://postgres:Themedaksh990@db:5432/railway_sim_db
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - db
       - redis
 
   # The Frontend Service
   frontend:
-    build: ./frontend/darnex-app
+    build: ./frontend/rail-traffic-control
     image: railway-frontend
     ports:
       - "3000:80"
