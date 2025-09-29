@@ -1,20 +1,20 @@
 {
-  "training_timestamp": "2025-09-28T00:25:08.160857",
+  "training_timestamp": "2025-09-29T12:53:32.905991",
   "dataset_info": {
-    "total_records": 107524,
+    "total_records": 106869,
     "features_engineered": 49,
-    "training_records": 86019,
-    "test_records": 21505
+    "training_records": 85495,
+    "test_records": 21374
   },
   "model_performance": {
     "delay_prediction": {
       "best_model": "Random Forest",
-      "test_mae": 551.9797366280536,
-      "cv_mae": 556.5612147342665,
+      "test_mae": 581.7732016931794,
+      "cv_mae": 562.5920292951705,
       "feature_count": 26
     },
     "decision_making": {
-      "accuracy": 1.0,
+      "accuracy": 0.999953214185459,
       "classes": [
         "proceed",
         "reduce_speed",
