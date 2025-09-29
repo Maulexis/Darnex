@@ -1,0 +1,51 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # The PostgreSQL Database Service
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432" # Exposes the DB port to your local machine for tools like DBeaver
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Themedaksh990
+      - POSTGRES_DB=railway_sim_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Persists database data
+
+  # The Redis Caching Service
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # The Node.js Backend Service
+  backend:
+    build: ./backend
+    image: railway-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      # These URLs use the service names ('db', 'redis') as hostnames
+      - DATABASE_URL=postgresql://postgres:Themedaksh990@localhost:5432/railway_sim_db
+      - REDIS_URL=redis://localhost:6379
+    depends_on:
+      - db
+      - redis
+
+  # The Frontend Service
+  frontend:
+    build: ./frontend/darnex-app
+    image: railway-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+# Defines the named volume for persisting PostgreSQL data
+volumes:
+  pgdata:

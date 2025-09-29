@@ -1,3 +1,4 @@
+
 // src/services/db.js
 import pkg from "pg";
 const { Pool } = pkg;
@@ -22,3 +23,4 @@ export async function query(text, params) {
 
 // Default export pool (if you need raw connections)
 export default pool;
+

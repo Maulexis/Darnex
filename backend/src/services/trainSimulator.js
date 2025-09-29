@@ -1,3 +1,4 @@
+
 // src/services/trainSimulator.js
 import { query } from "./db.js";
 
