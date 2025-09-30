@@ -1,13 +1,44 @@
 import React, { useEffect } from "react";
 import Chart from "chart.js/auto";
+import { color } from "chart.js/helpers";
 
 const TrainPage = () => {
   const schedules = [
-    { train: "Rajdhani Express", platform: 1, time: "10:30 AM", type: "Express", status: "Arrived" },
-    { train: "Shatabdi Express", platform: 3, time: "11:15 AM", type: "Express", status: "Coming" },
-    { train: "Goods Freight", platform: 2, time: "11:45 AM", type: "Freight", status: "Delayed" },
-    { train: "Passenger Local", platform: 4, time: "12:00 PM", type: "Passenger", status: "Arrived" },
-    { train: "Mail Express", platform: 5, time: "12:30 PM", type: "Mail", status: "Coming" },
+    {
+      train: "Rajdhani Express",
+      platform: 1,
+      time: "10:30 AM",
+      type: "Express",
+      status: "Arrived",
+    },
+    {
+      train: "Shatabdi Express",
+      platform: 3,
+      time: "11:15 AM",
+      type: "Express",
+      status: "Coming",
+    },
+    {
+      train: "Goods Freight",
+      platform: 2,
+      time: "11:45 AM",
+      type: "Freight",
+      status: "Delayed",
+    },
+    {
+      train: "Passenger Local",
+      platform: 4,
+      time: "12:00 PM",
+      type: "Passenger",
+      status: "Arrived",
+    },
+    {
+      train: "Mail Express",
+      platform: 5,
+      time: "12:30 PM",
+      type: "Mail",
+      status: "Coming",
+    },
   ];
 
   const updates = [
@@ -32,7 +63,15 @@ const TrainPage = () => {
             },
           ],
         },
-        options: { responsive: true, plugins: { legend: { position: "bottom" } } },
+        // options: {
+        //   responsive: true,
+        //   plugins: { legend: { position: "bottom" } },
+        // },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom" } },
+        },
       });
     }
     return () => {
@@ -74,7 +113,8 @@ const TrainPage = () => {
                           : t.status === "Coming"
                           ? "#ffc107"
                           : "#dc3545",
-                      color: t.status === "Coming" ? "#000" : "#fff",
+                      color: t.status === "Coming" ? "#fff" : "#fff",
+                      borderRadius: "20px",
                     }}
                   >
                     {t.status}
@@ -94,7 +134,7 @@ const TrainPage = () => {
             <h3>Trains Passed</h3>
             <p>34</p>
           </div>
-          <div style={{ ...styles.card, background: "#ffc107", color: "#000" }}>
+          <div style={{ ...styles.card, background: "#ffc107", color: "#fff" }}>
             <h3>Incoming</h3>
             <p>12</p>
           </div>
@@ -107,7 +147,10 @@ const TrainPage = () => {
             <p>8 mins</p>
           </div>
         </div>
-        <canvas id="congestionChart" width="400" height="200"></canvas>
+        {/* <canvas id="congestionChart" width="50" height="50"></canvas> */}
+        <div style={{ width: "400px", height: "400px", margin: "auto" }}>
+          <canvas id="congestionChart"></canvas>
+        </div>
       </section>
 
       {/* LIVE UPDATES */}
@@ -127,25 +170,28 @@ const TrainPage = () => {
 const styles = {
   main: {
     padding: "30px 20px",
-    maxWidth: "1200px",
+    // maxWidth: "1200px",
     margin: "auto",
-    background: "#f0f4f8",
+    // background: "#f0f4f8",
+    background: "#00152D",
   },
   h1: {
     textAlign: "center",
     fontSize: "32px",
     marginBottom: "25px",
-    color: "#007bff",
+    color: "white",
   },
   h2: {
     fontSize: "22px",
     marginBottom: "15px",
-    color: "#333",
-    borderLeft: "5px solid #007bff",
+    // color: "#333",
+    color: "white",
+    borderLeft: "5px solid  #fff",
     paddingLeft: "10px",
   },
   section: {
-    background: "white",
+    // background: "white",
+    background: "#00152D",
     padding: "25px 20px",
     marginBottom: "30px",
     borderRadius: "12px",
@@ -154,19 +200,25 @@ const styles = {
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    background: "#fff",
+    // background: "#fff",
+    // background: " #002147",
+    background: "#00152D",
   },
   th: {
     border: "1px solid #ddd",
     padding: "12px",
     fontSize: "15px",
-    background: "#f8f9fa",
+    // background: "#f8f9fa",
+    color: "white",
     textAlign: "left",
   },
   td: {
     border: "1px solid #ddd",
     padding: "10px",
     fontSize: "14px",
+    // background: " #002147",
+    background: "#00152D",
+    color: "white",
   },
   rowEven: {
     background: "#ffffff",
@@ -183,7 +235,12 @@ const styles = {
     minWidth: "80px",
     textAlign: "center",
   },
-  cards: { display: "flex", gap: "15px", marginBottom: "20px", flexWrap: "wrap" },
+  cards: {
+    display: "flex",
+    gap: "15px",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+  },
   card: {
     flex: "1 1 200px",
     color: "white",

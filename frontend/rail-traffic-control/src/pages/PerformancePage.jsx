@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Chart from "chart.js/auto";
+import { color } from "chart.js/helpers";
 
 const PerformancePge = () => {
   useEffect(() => {
@@ -43,7 +44,11 @@ const PerformancePge = () => {
       chart1 = new Chart(ctx1, {
         type: "bar",
         data: {
-          labels: ["Delay Reduction %", "Platform Utilization %", "Train Throughput"],
+          labels: [
+            "Delay Reduction %",
+            "Platform Utilization %",
+            "Train Throughput",
+          ],
           datasets: [
             {
               label: "Performance Metrics",
@@ -100,7 +105,9 @@ const PerformancePge = () => {
         <div style={styles.workflow}>
           <div className="step" style={styles.step}>
             <h4>Train Arrival</h4>
-            <p>Trains enter the station and system logs arrival time and track.</p>
+            <p>
+              Trains enter the station and system logs arrival time and track.
+            </p>
           </div>
           <div className="step" style={styles.step}>
             <h4>AI Evaluation</h4>
@@ -123,15 +130,21 @@ const PerformancePge = () => {
         <div style={styles.metrics}>
           <div className="metric" style={styles.metric}>
             <h3>Delay Reduction</h3>
-            <p className="count" data-target="20">0%</p>
+            <p className="count" data-target="20">
+              0%
+            </p>
           </div>
           <div className="metric" style={styles.metric}>
             <h3>Platform Utilization</h3>
-            <p className="count" data-target="30">0%</p>
+            <p className="count" data-target="30">
+              0%
+            </p>
           </div>
           <div className="metric" style={styles.metric}>
             <h3>Train Throughput</h3>
-            <p className="count" data-target="145">0</p>
+            <p className="count" data-target="145">
+              0
+            </p>
           </div>
         </div>
         <canvas id="performanceChart" width="400" height="200"></canvas>
@@ -172,10 +185,18 @@ const PerformancePge = () => {
       {/* Highlights */}
       <section style={styles.section}>
         <h2 style={styles.h2}>System Highlights</h2>
-        <span style={{ ...styles.badge, background: "#28a745" }}>Real-Time Recommendations</span>
-        <span style={{ ...styles.badge, background: "#007bff" }}>Enhanced Safety</span>
-        <span style={{ ...styles.badge, background: "#ffc107", color: "#000" }}>Higher Throughput</span>
-        <span style={{ ...styles.badge, background: "#6f42c1" }}>Efficient Queues</span>
+        <span style={{ ...styles.badge, background: "#28a745" }}>
+          Real-Time Recommendations
+        </span>
+        <span style={{ ...styles.badge, background: "#007bff" }}>
+          Enhanced Safety
+        </span>
+        <span style={{ ...styles.badge, background: "#ffc107", color: "#fff" }}>
+          Higher Throughput
+        </span>
+        <span style={{ ...styles.badge, background: "#6f42c1" }}>
+          Efficient Queues
+        </span>
       </section>
     </main>
   );
@@ -185,52 +206,76 @@ const PerformancePge = () => {
 const styles = {
   main: {
     padding: "30px 20px",
-    maxWidth: "1000px",
+    // maxWidth: "1000px",
     margin: "auto",
-    background: "#f0f4f8",
+    background: "#00152D",
+    // background: "#f0f4f8",
   },
-  h1: { textAlign: "center", fontSize: "32px", marginBottom: "20px", color: "#007bff" },
+  h1: {
+    textAlign: "center",
+    fontSize: "32px",
+    marginBottom: "20px",
+    // color: "#007bff",
+    color: "white",
+  },
   h2: {
     fontSize: "24px",
     marginBottom: "15px",
-    color: "#333",
-    borderLeft: "5px solid #007bff",
+    color: "white",
+    // borderLeft: "5px solid #007bff",
+    borderLeft: " #002147",
     paddingLeft: "10px",
   },
+
   section: {
-    background: "white",
+    background: "#00152D",
     padding: "25px 20px",
     marginBottom: "25px",
     borderRadius: "12px",
     boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
   },
-  workflow: { display: "flex", flexWrap: "wrap", gap: "15px", marginTop: "15px" },
+  workflow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "15px",
+    marginTop: "15px",
+  },
   step: {
     flex: "1 1 220px",
-    background: "#007bff",
+    background: "#00B7C2",
     color: "white",
     padding: "20px",
     borderRadius: "12px",
     textAlign: "center",
     boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
   },
-  metrics: { display: "flex", gap: "15px", marginTop: "15px", flexWrap: "wrap" },
+  metrics: {
+    display: "flex",
+    gap: "15px",
+    marginTop: "15px",
+    flexWrap: "wrap",
+  },
   metric: {
     flex: "1 1 250px",
-    background: "linear-gradient(135deg, #6a11cb, #2575fc)",
+    background: "#00B7C2",
     color: "white",
     padding: "20px",
     borderRadius: "12px",
     textAlign: "center",
   },
-  table: { width: "100%", borderCollapse: "collapse", marginTop: "15px" },
+  table: {
+    color: "white",
+    width: "100%",
+    borderCollapse: "collapse",
+    marginTop: "15px",
+  },
   badge: {
     display: "inline-block",
     padding: "5px 12px",
     borderRadius: "12px",
     margin: "5px 5px 0 0",
-    fontSize: "14px",
-    fontWeight: "bold",
+    fontSize: "15px",
+    fontWeight: "10px",
     color: "white",
   },
 };
