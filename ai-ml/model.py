@@ -363,4 +363,7 @@ print("   - models/phase1_metadata.json")
 =======
 # Close database connection
 conn.close()
+<<<<<<< HEAD
 >>>>>>> 230ee4cd325408633d0b9f99b0f49a4c546452d3
+=======
+>>>>>>> dbcc0da53dc5473be949a73b6362eee5c8373bbd

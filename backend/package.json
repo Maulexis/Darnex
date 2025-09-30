@@ -2,8 +2,12 @@
     "name": "railway-sim-backend",
     "version": "1.0.0",
     "type": "module",
+<<<<<<< HEAD
     "description": "Backend for a railway traffic management & simulation system.",
     "type": "module",             
+=======
+    "description": "Backend for a railway traffic management & simulation system.",            
+>>>>>>> dbcc0da53dc5473be949a73b6362eee5c8373bbd
     "main": "src/server.js",
     "scripts": {
         "start": "node src/server.js",
