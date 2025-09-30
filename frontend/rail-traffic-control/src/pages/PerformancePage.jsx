@@ -191,7 +191,7 @@ const PerformancePge = () => {
         <span style={{ ...styles.badge, background: "#007bff" }}>
           Enhanced Safety
         </span>
-        <span style={{ ...styles.badge, background: "#ffc107", color: "#000" }}>
+        <span style={{ ...styles.badge, background: "#ffc107", color: "#fff" }}>
           Higher Throughput
         </span>
         <span style={{ ...styles.badge, background: "#6f42c1" }}>
@@ -274,8 +274,8 @@ const styles = {
     padding: "5px 12px",
     borderRadius: "12px",
     margin: "5px 5px 0 0",
-    fontSize: "14px",
-    fontWeight: "bold",
+    fontSize: "15px",
+    fontWeight: "10px",
     color: "white",
   },
 };

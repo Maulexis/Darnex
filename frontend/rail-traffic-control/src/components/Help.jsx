@@ -251,7 +251,8 @@ const styles = {
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #ccc",
-    background: "#00152D",
+    // background: "#00152D",
+    background: "white",
     cursor: "pointer",
   },
   faqAnswer: {
