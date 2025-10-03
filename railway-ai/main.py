@@ -10,6 +10,9 @@ import warnings
 from datetime import datetime
 import sys
 import pandas as pd
+import pickle
+import joblib  
+import json
 
 # Add project directories to path
 sys.path.append(os.path.dirname(__file__))
@@ -20,7 +23,7 @@ from data.loader import RailwayDataLoader
 from data.cleaner import RailwayDataCleaner
 from scheduler.priority import TrainPriorityCalculator
 from scheduler.optimizer import ScheduleOptimizer
-from utils.helpers import RailwayUtils, format_time_duration, create_directory_structure
+from scheduler.utils.helpers import RailwayUtils, format_time_duration, create_directory_structure
 from track_monitoring_integration import TrackMonitoringIntegrator
 
 # Suppress warnings for cleaner output
@@ -35,6 +38,9 @@ class DarnexRailwayAI:
         # Create directory structure
         create_directory_structure()
         
+        # Ensure models directory exists
+        os.makedirs('models', exist_ok=True)
+        
         # Initialize components
         self.data_loader = None
         self.data_cleaner = RailwayDataCleaner()
@@ -45,6 +51,105 @@ class DarnexRailwayAI:
         # Track execution times
         self.start_time = datetime.now()
         self.phase_times = {}
+
+    def save_models_and_data(self, phase1_data, phase2_data, phase3_data=None):
+        """Save all trained models and processed data to files"""
+        print("\n💾 Saving models and processed data...")
+        
+        # DEBUG: Show current working directory and target path
+        current_dir = os.getcwd()
+        models_dir = os.path.join(current_dir, 'models')
+        print(f"🔍 Current working directory: {current_dir}")
+        print(f"🔍 Target models directory: {models_dir}")
+        print(f"🔍 Models directory exists: {os.path.exists(models_dir)}")
+        
+        # Ensure absolute path
+        os.makedirs(models_dir, exist_ok=True)
+        
+        try:
+            # Save Phase 1 data (DataFrames)
+            if phase1_data and 'railway_df' in phase1_data:
+                railway_df = phase1_data['railway_df']
+                trains = phase1_data['trains']
+                
+                # Save as pickle files
+                file_path1 = os.path.join(models_dir, 'unified_railway_dataset.pkl')
+                file_path2 = os.path.join(models_dir, 'trains_data.pkl')
+                
+                railway_df.to_pickle(file_path1)
+                trains.to_pickle(file_path2)
+                
+                print(f"✅ Saved: {file_path1}")
+                print(f"✅ File exists: {os.path.exists(file_path1)}")
+                print(f"✅ Saved: {file_path2}")
+                print(f"✅ File exists: {os.path.exists(file_path2)}")
+                
+                # Save as CSV for easy viewing
+                railway_df.to_csv(os.path.join(models_dir, 'unified_railway_dataset.csv'), index=False)
+                trains.to_csv(os.path.join(models_dir, 'trains_data.csv'), index=False)
+                print("✅ Phase 1 CSV files saved for inspection")
+            
+            # Save Phase 2 data (Scheduler results)
+            if phase2_data:
+                final_schedule = phase2_data['final_schedule']
+                trains_with_delays = phase2_data['trains_with_delays']
+                schedule_summary = phase2_data['schedule_summary']
+                
+                # Save scheduler data
+                final_schedule.to_pickle(os.path.join(models_dir, 'final_schedule.pkl'))
+                trains_with_delays.to_pickle(os.path.join(models_dir, 'trains_with_delays.pkl'))
+                
+                # Save scheduler metadata
+                with open(os.path.join(models_dir, 'schedule_summary.json'), 'w') as f:
+                    json.dump(schedule_summary, f, indent=2, default=str)
+                
+                # Save as CSV
+                final_schedule.to_csv(os.path.join(models_dir, 'final_schedule.csv'), index=False)
+                trains_with_delays.to_csv(os.path.join(models_dir, 'trains_with_delays.csv'), index=False)
+                print("✅ Phase 2 data saved: schedule, delays, summary")
+            
+            # Save Phase 3 data (Track monitoring results)
+            if phase3_data:
+                with open(os.path.join(models_dir, 'track_monitoring_results.pkl'), 'wb') as f:
+                    pickle.dump(phase3_data, f)
+                print("✅ Phase 3 data saved: track monitoring results")
+            
+            # Save trained AI models
+            joblib.dump(self.priority_calculator, os.path.join(models_dir, 'priority_calculator_model.pkl'))
+            joblib.dump(self.scheduler, os.path.join(models_dir, 'scheduler_model.pkl'))
+            joblib.dump(self.data_cleaner, os.path.join(models_dir, 'data_cleaner_model.pkl'))
+            print("✅ AI models saved: priority_calculator, scheduler, data_cleaner")
+            
+            # Save metadata about the run
+            metadata = {
+                'run_timestamp': datetime.now().isoformat(),
+                'phase_times': self.phase_times,
+                'total_execution_time': str(datetime.now() - self.start_time),
+                'railway_data_shape': phase1_data['railway_df'].shape if phase1_data else None,
+                'trains_count': len(phase1_data['trains']) if phase1_data else None,
+                'schedule_entries': len(phase2_data['final_schedule']) if phase2_data else None
+            }
+            
+            with open(os.path.join(models_dir, 'run_metadata.json'), 'w') as f:
+                json.dump(metadata, f, indent=2, default=str)
+            print("✅ Run metadata saved")
+            
+            print("\n📂 Generated Model Files:")
+            print(" - models/unified_railway_dataset.pkl")
+            print(" - models/trains_data.pkl") 
+            print(" - models/final_schedule.pkl")
+            print(" - models/trains_with_delays.pkl")
+            print(" - models/priority_calculator_model.pkl")
+            print(" - models/scheduler_model.pkl")
+            print(" - models/data_cleaner_model.pkl")
+            print(" - models/schedule_summary.json")
+            print(" - models/run_metadata.json")
+            print(" - CSV files for easy inspection")
+            
+        except Exception as e:
+            print(f"❌ Error saving models: {e}")
+            import traceback
+            traceback.print_exc()
         
     def run_phase1_data_pipeline(self):
         """Execute Phase 1: Data Pipeline (FIXED VERSION)"""
@@ -90,11 +195,6 @@ class DarnexRailwayAI:
         # Generate data summary
         self.data_cleaner.generate_data_summary(railway_df)
         
-        # Save processed data
-        self.utils.save_processed_data(
-            railway_df, train_movements_clean, timetable_events_clean, tracks_clean
-        )
-        
         phase_end = datetime.now()
         self.phase_times['phase1'] = format_time_duration(phase_start, phase_end)
         
@@ -109,13 +209,6 @@ class DarnexRailwayAI:
         ]
         
         self.utils.print_completion_message("PHASE 1", achievements)
-        
-        print("\\n📂 Generated Files:")
-        print(" - models/unified_railway_dataset.pkl")
-        print(" - models/train_movements_clean.pkl")
-        print(" - models/timetable_events_clean.pkl")
-        print(" - models/tracks_clean.pkl")
-        print(" - models/phase1_metadata.json")
         
         return {
             'railway_df': railway_df,
@@ -164,9 +257,6 @@ class DarnexRailwayAI:
         
         # Display results
         self.scheduler.display_scheduling_results(schedule_summary)
-        
-        # Save Phase 2 results
-        self.utils.save_phase2_results(final_schedule, trains_with_delays, schedule_summary)
         
         phase_end = datetime.now()
         self.phase_times['phase2'] = format_time_duration(phase_start, phase_end)
@@ -259,6 +349,9 @@ class DarnexRailwayAI:
                 print("⚠️ Phase 3 failed but continuing...")
                 # Don't fail completely if Phase 3 fails
             
+            # SAVE ALL MODELS AND DATA
+            self.save_models_and_data(phase1_results, phase2_results, phase3_results)
+            
             # System completion summary
             total_time = format_time_duration(self.start_time, datetime.now())
             
@@ -282,6 +375,7 @@ class DarnexRailwayAI:
                 print(f" ✅ Real-time track monitoring & collision avoidance")
             print(f" ✅ Scalable modular architecture")
             print(f" ✅ Production-ready codebase")
+            print(f" ✅ All models saved for deployment")
             
             return True
             
@@ -300,10 +394,15 @@ def main():
     """Main entry point"""
     # Initialize and run the complete system
     railway_ai = DarnexRailwayAI()
-    success = railway_ai.run_complete_system()  # ← FIXED: Correct method name
+    success = railway_ai.run_complete_system()
     
     if success:
-        print("\\n✅")
+        print("\\n✅ System ready for Smart India Hackathon demonstration!")
+        print("\\n📦 MODELS SAVED - You can now:")
+        print("  • Load models for real-time predictions")
+        print("  • Deploy to production environment")
+        print("  • Integrate with railway control systems")
+        print("  • Run track monitoring independently")
     else:
         print("\\n❌ System execution failed - check logs for details")
         sys.exit(1)

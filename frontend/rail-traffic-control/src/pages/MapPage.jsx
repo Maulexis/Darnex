@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Map1 from '../components/Map1';
 import { useNavigate } from "react-router-dom";
 import {
   MapContainer,

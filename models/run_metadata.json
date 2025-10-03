@@ -1,0 +1,15 @@
+{
+  "run_timestamp": "2025-09-30T07:31:30.592250",
+  "phase_times": {
+    "phase1": "0s",
+    "phase2": "3s",
+    "phase3": "1s"
+  },
+  "total_execution_time": "0:00:08.955555",
+  "railway_data_shape": [
+    240791,
+    29
+  ],
+  "trains_count": 500,
+  "schedule_entries": 10000
+}

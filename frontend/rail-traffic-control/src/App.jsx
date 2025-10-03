@@ -9,6 +9,7 @@ import PerformancePage from "./pages/PerformancePage";
 import TrainPage from "./pages/TrainPage";
 import HelpPage from "./pages/HelpPage";
 import DetailedMap from "./pages/DetailedMap";
+
 function App() {
   return (
     <BrowserRouter>

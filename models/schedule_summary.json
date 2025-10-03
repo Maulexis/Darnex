@@ -1,0 +1,30 @@
+{
+  "generation_timestamp": "2025-09-30T07:31:25.389841",
+  "total_trains": 500,
+  "total_schedule_entries": 10000,
+  "priority_distribution": {
+    "SUPERFAST (Highest)": 1779,
+    "EXPRESS (High)": 1911,
+    "MEMU/PASSENGER (Medium)": 4300,
+    "GOODS/FREIGHT (Lowest)": 2010
+  },
+  "train_type_distribution": {
+    "PASSENGER": 2478,
+    "GOODS": 2010,
+    "EXPRESS": 1911,
+    "MEMU": 1822,
+    "SUPERFAST": 1779
+  },
+  "average_delays": {
+    "SUPERFAST (Highest)": 71.4,
+    "EXPRESS (High)": 71.18,
+    "MEMU/PASSENGER (Medium)": 71.49,
+    "GOODS/FREIGHT (Lowest)": 70.99
+  },
+  "time_span": {
+    "earliest_departure": "2025-09-30 09:21:00.767000",
+    "latest_arrival": "2025-11-01 01:13:25.384000"
+  },
+  "scheduling_algorithm": "Indian Railway Priority System",
+  "priority_order": "Superfast > Express > MEMU/Passenger > Goods"
+}

@@ -1,0 +1,501 @@
+id,train_no,name,type,priority,length_m
+1,42079,Jhunjhunu-Sikar Passenger,Passenger,3,418
+2,19909,Udaipur MEMU,MEMU,4,551
+3,69868,Ganganagar-Bikaner Passenger,Passenger,3,599
+4,43418,Alwar MEMU,MEMU,4,647
+5,43630,Udaipur-Ahmedabad Passenger,Passenger,3,654
+6,17176,Mewar Express,Express,2,694
+7,33939,Bikaner MEMU,MEMU,4,432
+8,69519,Suvidha Express,Superfast,1,673
+9,78517,Ajmer Shatabdi,Superfast,1,661
+10,83434,Premium Tatkal Express,Superfast,1,675
+11,40816,Alwar-Delhi Passenger,Passenger,3,530
+12,31009,Jodhpur Express,Express,2,545
+13,11764,Aravali Express,Express,2,544
+14,96656,Bikaner MEMU,MEMU,4,545
+15,25195,Coal Special,Goods,5,536
+16,61361,Ganganagar MEMU,MEMU,4,440
+17,34844,Kota-Sawai Madhopur Passenger,Passenger,3,664
+18,68386,Ajmer-Jaipur Passenger,Passenger,3,671
+19,86105,Fertilizer Goods,Goods,5,614
+20,41597,Bharatpur-Mathura Passenger,Passenger,3,421
+21,17526,Tejas Express,Superfast,1,471
+22,70394,Jodhpur Express,Express,2,400
+23,66443,Bikaner MEMU,MEMU,4,424
+24,64407,Udaipur City Express,Express,2,565
+25,68044,Raw Material Express,Goods,5,678
+26,43917,Kota MEMU,MEMU,4,404
+27,37854,Udaipur MEMU,MEMU,4,583
+28,81131,Mineral Transport,Goods,5,459
+29,22248,Suvidha Express,Superfast,1,650
+30,29376,Container Freight,Goods,5,456
+31,24426,Petroleum Special,Goods,5,674
+32,52659,Vande Bharat Express,Superfast,1,561
+33,35940,Alwar MEMU,MEMU,4,428
+34,79036,Container Freight,Goods,5,691
+35,30688,Coal Special,Goods,5,573
+36,29800,Steel Transport,Goods,5,658
+37,99534,Kota-Sawai Madhopur Passenger,Passenger,3,550
+38,55992,Raw Material Express,Goods,5,529
+39,34605,Intercity Express,Express,2,550
+40,88549,Raw Material Express,Goods,5,631
+41,13536,Limestone Special,Goods,5,641
+42,67259,Limestone Special,Goods,5,547
+43,50424,Marudhar Express,Express,2,437
+44,68969,Golden Temple Mail,Express,2,415
+45,93475,Fertilizer Goods,Goods,5,698
+46,82802,Alwar-Delhi Passenger,Passenger,3,647
+47,27232,Petroleum Special,Goods,5,403
+48,51421,Humsafar Express,Superfast,1,424
+49,10874,Tejas Express,Superfast,1,536
+50,93891,Chittorgarh-Udaipur Passenger,Passenger,3,542
+51,93127,Chetak Express,Express,2,504
+52,81361,Bikaner Express,Express,2,470
+53,27804,Udaipur MEMU,MEMU,4,448
+54,70707,Udaipur MEMU,MEMU,4,506
+55,10440,Sikar-Jaipur Passenger,Passenger,3,493
+56,43871,Chetak Express,Express,2,576
+57,16140,Vande Bharat Express,Superfast,1,512
+58,53846,Ashram Express,Express,2,516
+59,86113,Iron Ore Express,Goods,5,659
+60,30634,Mount Abu-Abu Road Passenger,Passenger,3,411
+61,94174,Ajmer MEMU,MEMU,4,481
+62,20289,Bikaner MEMU,MEMU,4,461
+63,72477,Limestone Special,Goods,5,465
+64,87516,Premium Tatkal Express,Superfast,1,417
+65,36118,Kota-Sawai Madhopur Passenger,Passenger,3,417
+66,55849,Double Decker Express,Superfast,1,621
+67,79046,Jaipur-Delhi Passenger,Passenger,3,652
+68,67036,Bharatpur-Mathura Passenger,Passenger,3,504
+69,62692,Ajmer Express,Express,2,649
+70,15718,Industrial Freight,Goods,5,564
+71,98956,Bharatpur-Mathura Passenger,Passenger,3,569
+72,15583,Duronto Express,Superfast,1,527
+73,83277,Udaipur-Ahmedabad Passenger,Passenger,3,592
+74,33991,Agricultural Goods,Goods,5,688
+75,85682,Jodhpur Express,Express,2,601
+76,18005,Mewar Express,Express,2,666
+77,92390,Chetak Express,Express,2,665
+78,96654,Steel Transport,Goods,5,672
+79,79313,Ajmer-Jaipur Passenger,Passenger,3,618
+80,31586,Premium Tatkal Express,Superfast,1,653
+81,96949,Bikaner MEMU,MEMU,4,550
+82,49615,Intercity Express,Express,2,546
+83,39883,Kota MEMU,MEMU,4,661
+84,13124,Mount Abu-Abu Road Passenger,Passenger,3,681
+85,47622,Jodhpur MEMU,MEMU,4,493
+86,64516,Sikar-Jaipur Passenger,Passenger,3,504
+87,35847,Jodhpur MEMU,MEMU,4,599
+88,23951,Iron Ore Express,Goods,5,412
+89,13545,Udaipur-Ahmedabad Passenger,Passenger,3,499
+90,92826,Ajmer Shatabdi,Superfast,1,427
+91,65813,Ganganagar-Bikaner Passenger,Passenger,3,623
+92,13717,Limestone Special,Goods,5,643
+93,58008,Iron Ore Express,Goods,5,615
+94,10306,Jodhpur MEMU,MEMU,4,695
+95,80214,Haridwar Mail,Express,2,645
+96,12431,Haridwar Mail,Express,2,461
+97,30340,Udaipur-Ahmedabad Passenger,Passenger,3,544
+98,30164,Churu MEMU,MEMU,4,688
+99,51097,Chittorgarh-Udaipur Passenger,Passenger,3,425
+100,37543,Chittorgarh-Udaipur Passenger,Passenger,3,574
+101,84215,Premium Tatkal Express,Superfast,1,515
+102,37949,Bikaner MEMU,MEMU,4,444
+103,60512,Fertilizer Goods,Goods,5,442
+104,88057,Udaipur-Ahmedabad Passenger,Passenger,3,482
+105,70065,Raw Material Express,Goods,5,479
+106,65500,Double Decker Express,Superfast,1,604
+107,15732,Mewar Express,Express,2,683
+108,72467,Dehradun Express,Express,2,447
+109,24692,Bikaner MEMU,MEMU,4,488
+110,28186,Mineral Transport,Goods,5,612
+111,35469,Kota MEMU,MEMU,4,594
+112,20398,Sikar-Jaipur Passenger,Passenger,3,519
+113,15638,Jaipur-Delhi Passenger,Passenger,3,545
+114,10300,Pink City Rajdhani,Superfast,1,597
+115,14511,Limestone Special,Goods,5,547
+116,52257,Jodhpur Express,Express,2,626
+117,61359,Premium Tatkal Express,Superfast,1,610
+118,73431,Golden Temple Mail,Express,2,450
+119,93753,Petroleum Special,Goods,5,620
+120,73394,Container Freight,Goods,5,616
+121,73670,Antyodaya Express,Superfast,1,534
+122,33824,Mount Abu-Abu Road Passenger,Passenger,3,479
+123,45282,Udaipur MEMU,MEMU,4,514
+124,24252,Mount Abu-Abu Road Passenger,Passenger,3,590
+125,21015,Kota Express,Express,2,674
+126,90169,Raw Material Express,Goods,5,477
+127,23057,Haridwar Mail,Express,2,612
+128,86398,Alwar-Delhi Passenger,Passenger,3,518
+129,46520,Premium Tatkal Express,Superfast,1,555
+130,21420,Container Freight,Goods,5,463
+131,50709,Dehradun Express,Express,2,499
+132,43299,Udaipur City Express,Express,2,645
+133,68160,Kota-Sawai Madhopur Passenger,Passenger,3,574
+134,77316,Ajmer-Jaipur Passenger,Passenger,3,576
+135,98339,Industrial Freight,Goods,5,597
+136,26065,Ganganagar-Bikaner Passenger,Passenger,3,524
+137,85893,Chittorgarh-Udaipur Passenger,Passenger,3,562
+138,40973,Sikar MEMU,MEMU,4,606
+139,25767,Cement Loading,Goods,5,440
+140,33213,Iron Ore Express,Goods,5,594
+141,27948,Coal Special,Goods,5,542
+142,80988,Mineral Transport,Goods,5,644
+143,20255,Gatimaan Express,Superfast,1,571
+144,90387,Bharatpur MEMU,MEMU,4,598
+145,35538,Alwar-Delhi Passenger,Passenger,3,505
+146,41752,Cement Loading,Goods,5,417
+147,63462,Mineral Transport,Goods,5,603
+148,25317,Udaipur-Ahmedabad Passenger,Passenger,3,521
+149,35213,Antyodaya Express,Superfast,1,438
+150,98996,Jodhpur Express,Express,2,428
+151,98300,Ganganagar MEMU,MEMU,4,416
+152,69757,Kota Express,Express,2,415
+153,38051,Tejas Express,Superfast,1,425
+154,28465,Suvidha Express,Superfast,1,510
+155,61411,Industrial Freight,Goods,5,472
+156,63970,Sampark Kranti Express,Superfast,1,514
+157,18966,Jhunjhunu-Sikar Passenger,Passenger,3,695
+158,93692,Mandore Express,Express,2,498
+159,65893,Ajmer Express,Express,2,611
+160,72002,Agricultural Goods,Goods,5,628
+161,86669,Double Decker Express,Superfast,1,677
+162,39651,Udaipur-Ahmedabad Passenger,Passenger,3,669
+163,50471,Mount Abu-Abu Road Passenger,Passenger,3,424
+164,51473,Industrial Freight,Goods,5,502
+165,42089,Bikaner MEMU,MEMU,4,416
+166,46987,Udaipur MEMU,MEMU,4,607
+167,71734,Vande Bharat Express,Superfast,1,689
+168,50164,Sampark Kranti Express,Superfast,1,680
+169,55327,Tejas Express,Superfast,1,552
+170,68575,Petroleum Special,Goods,5,519
+171,99848,Mount Abu-Abu Road Passenger,Passenger,3,429
+172,76708,Ajmer-Jaipur Passenger,Passenger,3,617
+173,70037,Abu Road MEMU,MEMU,4,478
+174,54721,Ajmer Shatabdi,Superfast,1,649
+175,88979,Intercity Express,Express,2,455
+176,60180,Vande Bharat Express,Superfast,1,605
+177,32170,Dehradun Express,Express,2,484
+178,59307,Steel Transport,Goods,5,562
+179,53132,Tejas Express,Superfast,1,593
+180,98182,Mineral Transport,Goods,5,656
+181,57743,Premium Tatkal Express,Superfast,1,685
+182,53397,Udaipur-Ahmedabad Passenger,Passenger,3,656
+183,98703,Antyodaya Express,Superfast,1,693
+184,17880,Udaipur MEMU,MEMU,4,522
+185,77982,Jaipur MEMU,MEMU,4,504
+186,16810,Sikar-Jaipur Passenger,Passenger,3,456
+187,59547,Double Decker Express,Superfast,1,485
+188,66520,Golden Temple Mail,Express,2,531
+189,39088,Pink City Rajdhani,Superfast,1,495
+190,70120,Duronto Express,Superfast,1,580
+191,54401,Kota-Sawai Madhopur Passenger,Passenger,3,658
+192,84474,Jaipur MEMU,MEMU,4,495
+193,33684,Tejas Express,Superfast,1,689
+194,46695,Udaipur City Express,Express,2,683
+195,38942,Kota-Sawai Madhopur Passenger,Passenger,3,607
+196,24474,Sampark Kranti Express,Superfast,1,673
+197,52554,Jaipur MEMU,MEMU,4,486
+198,13558,Sikar MEMU,MEMU,4,696
+199,64891,Bikaner-Jodhpur Passenger,Passenger,3,450
+200,64912,Chittorgarh-Udaipur Passenger,Passenger,3,577
+201,81286,Mewar Express,Express,2,586
+202,24719,Gatimaan Express,Superfast,1,616
+203,67523,Petroleum Special,Goods,5,535
+204,75928,Mineral Transport,Goods,5,489
+205,33301,Alwar-Delhi Passenger,Passenger,3,600
+206,54246,Petroleum Special,Goods,5,429
+207,11614,Ganganagar MEMU,MEMU,4,629
+208,73311,Alwar MEMU,MEMU,4,554
+209,43251,Abu Road MEMU,MEMU,4,607
+210,20701,Limestone Special,Goods,5,428
+211,15467,Golden Temple Mail,Express,2,565
+212,23295,Chittorgarh-Udaipur Passenger,Passenger,3,512
+213,74028,Bikaner Express,Express,2,636
+214,98397,Ashram Express,Express,2,678
+215,60092,Bikaner-Jodhpur Passenger,Passenger,3,685
+216,60964,Jodhpur MEMU,MEMU,4,592
+217,40452,Pink City Rajdhani,Superfast,1,569
+218,26376,Suryanagari Express,Express,2,497
+219,45543,Udaipur-Ahmedabad Passenger,Passenger,3,683
+220,80864,Cement Loading,Goods,5,544
+221,22768,Bharatpur MEMU,MEMU,4,630
+222,90161,Premium Tatkal Express,Superfast,1,688
+223,20798,Bikaner Express,Express,2,642
+224,44414,Container Freight,Goods,5,660
+225,73587,Bikaner-Jodhpur Passenger,Passenger,3,580
+226,97385,Haridwar Mail,Express,2,537
+227,27962,Alwar-Delhi Passenger,Passenger,3,481
+228,19606,Alwar-Delhi Passenger,Passenger,3,665
+229,63839,Ganganagar MEMU,MEMU,4,432
+230,13788,Bikaner Express,Express,2,407
+231,30017,Bikaner-Jodhpur Passenger,Passenger,3,443
+232,36636,Ashram Express,Express,2,602
+233,70165,Antyodaya Express,Superfast,1,494
+234,18087,Jaipur-Delhi Passenger,Passenger,3,659
+235,30528,Chittorgarh-Udaipur Passenger,Passenger,3,599
+236,84285,Jaipur MEMU,MEMU,4,585
+237,53713,Premium Tatkal Express,Superfast,1,505
+238,90690,Mount Abu-Abu Road Passenger,Passenger,3,425
+239,51887,Ajmer-Jaipur Passenger,Passenger,3,690
+240,91121,Jhunjhunu-Sikar Passenger,Passenger,3,406
+241,85060,Kota-Sawai Madhopur Passenger,Passenger,3,640
+242,59668,Ganganagar MEMU,MEMU,4,633
+243,23356,Chittorgarh-Udaipur Passenger,Passenger,3,556
+244,61779,Ganganagar-Bikaner Passenger,Passenger,3,467
+245,98191,Jhunjhunu-Sikar Passenger,Passenger,3,600
+246,52015,Ajmer-Jaipur Passenger,Passenger,3,404
+247,68944,Industrial Freight,Goods,5,547
+248,96477,Premium Tatkal Express,Superfast,1,454
+249,58865,Jodhpur Express,Express,2,515
+250,72928,Container Freight,Goods,5,648
+251,48406,Haridwar Mail,Express,2,453
+252,71629,Dehradun Express,Express,2,632
+253,51270,Jhunjhunu-Sikar Passenger,Passenger,3,652
+254,33321,Kota MEMU,MEMU,4,659
+255,83368,Aravali Express,Express,2,577
+256,65795,Pink City Rajdhani,Superfast,1,597
+257,92991,Fertilizer Goods,Goods,5,588
+258,36513,Mount Abu-Abu Road Passenger,Passenger,3,550
+259,42076,Jaipur MEMU,MEMU,4,419
+260,52008,Vande Bharat Express,Superfast,1,531
+261,29478,Industrial Freight,Goods,5,479
+262,88710,Antyodaya Express,Superfast,1,625
+263,73659,Iron Ore Express,Goods,5,431
+264,89610,Chetak Express,Express,2,540
+265,60854,Mandore Express,Express,2,522
+266,92848,Udaipur City Express,Express,2,555
+267,66445,Bikaner-Jodhpur Passenger,Passenger,3,436
+268,99930,Mewar Express,Express,2,535
+269,80878,Vande Bharat Express,Superfast,1,447
+270,58146,Ganganagar MEMU,MEMU,4,603
+271,92199,Bikaner-Jodhpur Passenger,Passenger,3,477
+272,20816,Jodhpur Express,Express,2,487
+273,89024,Aravali Express,Express,2,447
+274,95580,Container Freight,Goods,5,540
+275,70550,Premium Tatkal Express,Superfast,1,638
+276,19814,Churu MEMU,MEMU,4,457
+277,32764,Golden Temple Mail,Express,2,594
+278,97360,Container Freight,Goods,5,620
+279,85518,Mineral Transport,Goods,5,668
+280,58108,Alwar-Delhi Passenger,Passenger,3,648
+281,66711,Abu Road MEMU,MEMU,4,657
+282,36897,Bharatpur-Mathura Passenger,Passenger,3,664
+283,20740,Container Freight,Goods,5,639
+284,65976,Humsafar Express,Superfast,1,448
+285,92102,Haridwar Mail,Express,2,437
+286,22079,Abu Road MEMU,MEMU,4,451
+287,94044,Golden Temple Mail,Express,2,565
+288,73457,Industrial Freight,Goods,5,532
+289,48947,Jodhpur MEMU,MEMU,4,617
+290,95616,Ganganagar-Bikaner Passenger,Passenger,3,478
+291,23507,Ajmer MEMU,MEMU,4,423
+292,71482,Jodhpur MEMU,MEMU,4,689
+293,48468,Ganganagar MEMU,MEMU,4,506
+294,83558,Alwar MEMU,MEMU,4,657
+295,12977,Sikar MEMU,MEMU,4,514
+296,87068,Mount Abu-Abu Road Passenger,Passenger,3,655
+297,96107,Sampark Kranti Express,Superfast,1,607
+298,29517,Ajmer MEMU,MEMU,4,607
+299,51237,Ganganagar-Bikaner Passenger,Passenger,3,438
+300,30928,Mount Abu-Abu Road Passenger,Passenger,3,416
+301,74079,Humsafar Express,Superfast,1,584
+302,27592,Limestone Special,Goods,5,657
+303,37902,Coal Special,Goods,5,431
+304,50388,Ganganagar MEMU,MEMU,4,513
+305,49956,Coal Special,Goods,5,421
+306,32860,Ajmer-Jaipur Passenger,Passenger,3,621
+307,27874,Ashram Express,Express,2,679
+308,75871,Ajmer MEMU,MEMU,4,649
+309,78868,Alwar-Delhi Passenger,Passenger,3,688
+310,97804,Bikaner-Jodhpur Passenger,Passenger,3,617
+311,77611,Ajmer Express,Express,2,680
+312,67075,Alwar MEMU,MEMU,4,575
+313,40469,Sikar-Jaipur Passenger,Passenger,3,446
+314,10357,Ashram Express,Express,2,540
+315,41535,Mewar Express,Express,2,517
+316,64742,Suryanagari Express,Express,2,405
+317,18565,Vande Bharat Express,Superfast,1,560
+318,96960,Abu Road MEMU,MEMU,4,582
+319,37736,Container Freight,Goods,5,501
+320,81817,Jhunjhunu-Sikar Passenger,Passenger,3,429
+321,83499,Gatimaan Express,Superfast,1,555
+322,98287,Cement Loading,Goods,5,589
+323,19474,Churu MEMU,MEMU,4,636
+324,44290,Marudhar Express,Express,2,573
+325,52215,Jaipur MEMU,MEMU,4,669
+326,82903,Jodhpur MEMU,MEMU,4,577
+327,58444,Iron Ore Express,Goods,5,698
+328,69248,Premium Tatkal Express,Superfast,1,450
+329,80032,Abu Road MEMU,MEMU,4,568
+330,28538,Mewar Express,Express,2,556
+331,54491,Bharatpur MEMU,MEMU,4,439
+332,91954,Coal Special,Goods,5,414
+333,18223,Petroleum Special,Goods,5,425
+334,47563,Ajmer Express,Express,2,568
+335,79504,Vande Bharat Express,Superfast,1,486
+336,71698,Kota-Sawai Madhopur Passenger,Passenger,3,677
+337,26841,Coal Special,Goods,5,521
+338,54497,Vande Bharat Express,Superfast,1,700
+339,18417,Suryanagari Express,Express,2,549
+340,96317,Sikar-Jaipur Passenger,Passenger,3,527
+341,33232,Chetak Express,Express,2,583
+342,75235,Marudhar Express,Express,2,608
+343,48614,Alwar-Delhi Passenger,Passenger,3,551
+344,89126,Suvidha Express,Superfast,1,625
+345,28150,Bikaner MEMU,MEMU,4,647
+346,85015,Jaipur-Delhi Passenger,Passenger,3,466
+347,68823,Sikar-Jaipur Passenger,Passenger,3,461
+348,57078,Steel Transport,Goods,5,564
+349,47353,Jodhpur MEMU,MEMU,4,676
+350,38186,Limestone Special,Goods,5,435
+351,92724,Industrial Freight,Goods,5,682
+352,56079,Udaipur-Ahmedabad Passenger,Passenger,3,467
+353,88515,Kota MEMU,MEMU,4,545
+354,34566,Double Decker Express,Superfast,1,502
+355,96938,Udaipur MEMU,MEMU,4,674
+356,47335,Ajmer Express,Express,2,462
+357,81039,Jaipur MEMU,MEMU,4,401
+358,16416,Gatimaan Express,Superfast,1,611
+359,60516,Kota-Sawai Madhopur Passenger,Passenger,3,674
+360,57020,Raw Material Express,Goods,5,529
+361,85536,Abu Road MEMU,MEMU,4,443
+362,70062,Jhunjhunu-Sikar Passenger,Passenger,3,466
+363,21562,Double Decker Express,Superfast,1,589
+364,28303,Industrial Freight,Goods,5,473
+365,21601,Ajmer-Jaipur Passenger,Passenger,3,520
+366,27887,Duronto Express,Superfast,1,410
+367,15205,Duronto Express,Superfast,1,414
+368,28072,Udaipur MEMU,MEMU,4,418
+369,54159,Udaipur MEMU,MEMU,4,675
+370,19402,Kota-Sawai Madhopur Passenger,Passenger,3,423
+371,46904,Ajmer Shatabdi,Superfast,1,609
+372,34848,Alwar-Delhi Passenger,Passenger,3,655
+373,35601,Ajmer Shatabdi,Superfast,1,535
+374,23918,Alwar-Delhi Passenger,Passenger,3,439
+375,24032,Ajmer Shatabdi,Superfast,1,433
+376,89967,Alwar-Delhi Passenger,Passenger,3,556
+377,89724,Iron Ore Express,Goods,5,529
+378,62660,Tejas Express,Superfast,1,653
+379,83600,Double Decker Express,Superfast,1,400
+380,26630,Mandore Express,Express,2,494
+381,44252,Chittorgarh-Udaipur Passenger,Passenger,3,519
+382,97595,Sampark Kranti Express,Superfast,1,681
+383,47430,Jhunjhunu-Sikar Passenger,Passenger,3,612
+384,76242,Abu Road MEMU,MEMU,4,444
+385,24092,Limestone Special,Goods,5,552
+386,11843,Abu Road MEMU,MEMU,4,594
+387,97972,Iron Ore Express,Goods,5,577
+388,33016,Ajmer Shatabdi,Superfast,1,468
+389,56003,Udaipur-Ahmedabad Passenger,Passenger,3,569
+390,11097,Mewar Express,Express,2,480
+391,75591,Ajmer-Jaipur Passenger,Passenger,3,434
+392,90032,Ajmer Shatabdi,Superfast,1,633
+393,23375,Sikar MEMU,MEMU,4,659
+394,65966,Ashram Express,Express,2,662
+395,95600,Golden Temple Mail,Express,2,559
+396,12657,Udaipur-Ahmedabad Passenger,Passenger,3,453
+397,77011,Raw Material Express,Goods,5,652
+398,28437,Mount Abu-Abu Road Passenger,Passenger,3,510
+399,38610,Vande Bharat Express,Superfast,1,418
+400,13706,Dehradun Express,Express,2,515
+401,64165,Bikaner MEMU,MEMU,4,631
+402,71751,Suvidha Express,Superfast,1,506
+403,44164,Bikaner-Jodhpur Passenger,Passenger,3,658
+404,12478,Chetak Express,Express,2,522
+405,30389,Ajmer Express,Express,2,405
+406,78680,Kota-Sawai Madhopur Passenger,Passenger,3,402
+407,91007,Mandore Express,Express,2,640
+408,96446,Bikaner-Jodhpur Passenger,Passenger,3,492
+409,43704,Jaipur-Delhi Passenger,Passenger,3,598
+410,49846,Gatimaan Express,Superfast,1,628
+411,53054,Bharatpur-Mathura Passenger,Passenger,3,403
+412,36187,Iron Ore Express,Goods,5,575
+413,30709,Aravali Express,Express,2,464
+414,77064,Container Freight,Goods,5,560
+415,49556,Marudhar Express,Express,2,414
+416,93408,Haridwar Mail,Express,2,522
+417,28694,Mineral Transport,Goods,5,555
+418,51305,Intercity Express,Express,2,460
+419,52174,Kota-Sawai Madhopur Passenger,Passenger,3,456
+420,62304,Sikar MEMU,MEMU,4,619
+421,55657,Ajmer Shatabdi,Superfast,1,687
+422,31902,Raw Material Express,Goods,5,630
+423,12859,Iron Ore Express,Goods,5,569
+424,96222,Gatimaan Express,Superfast,1,439
+425,90341,Bharatpur MEMU,MEMU,4,602
+426,10851,Sampark Kranti Express,Superfast,1,623
+427,26483,Agricultural Goods,Goods,5,417
+428,78295,Churu MEMU,MEMU,4,515
+429,75377,Bikaner MEMU,MEMU,4,413
+430,72016,Pink City Rajdhani,Superfast,1,572
+431,60650,Mandore Express,Express,2,639
+432,65408,Aravali Express,Express,2,481
+433,64092,Abu Road MEMU,MEMU,4,567
+434,71637,Container Freight,Goods,5,535
+435,16066,Duronto Express,Superfast,1,454
+436,24089,Sampark Kranti Express,Superfast,1,485
+437,60171,Mount Abu-Abu Road Passenger,Passenger,3,685
+438,91851,Mount Abu-Abu Road Passenger,Passenger,3,528
+439,26417,Chittorgarh-Udaipur Passenger,Passenger,3,611
+440,80276,Petroleum Special,Goods,5,557
+441,11811,Abu Road MEMU,MEMU,4,659
+442,63154,Ajmer-Jaipur Passenger,Passenger,3,446
+443,55741,Bikaner MEMU,MEMU,4,491
+444,57472,Bharatpur MEMU,MEMU,4,485
+445,76304,Udaipur-Ahmedabad Passenger,Passenger,3,651
+446,11274,Golden Temple Mail,Express,2,595
+447,34843,Jaipur MEMU,MEMU,4,631
+448,40651,Raw Material Express,Goods,5,630
+449,54179,Coal Special,Goods,5,661
+450,15788,Ajmer Shatabdi,Superfast,1,486
+451,31317,Jhunjhunu-Sikar Passenger,Passenger,3,472
+452,16585,Sikar MEMU,MEMU,4,502
+453,68166,Vande Bharat Express,Superfast,1,641
+454,94538,Golden Temple Mail,Express,2,594
+455,94474,Fertilizer Goods,Goods,5,619
+456,82217,Mineral Transport,Goods,5,451
+457,49513,Alwar MEMU,MEMU,4,639
+458,18685,Sikar MEMU,MEMU,4,589
+459,46155,Jhunjhunu-Sikar Passenger,Passenger,3,451
+460,78899,Marudhar Express,Express,2,499
+461,71406,Udaipur-Ahmedabad Passenger,Passenger,3,534
+462,13048,Ajmer-Jaipur Passenger,Passenger,3,483
+463,87979,Jhunjhunu-Sikar Passenger,Passenger,3,402
+464,86593,Bikaner MEMU,MEMU,4,618
+465,94030,Alwar-Delhi Passenger,Passenger,3,405
+466,87255,Udaipur City Express,Express,2,473
+467,65496,Premium Tatkal Express,Superfast,1,606
+468,66381,Fertilizer Goods,Goods,5,658
+469,10910,Haridwar Mail,Express,2,469
+470,69210,Bharatpur MEMU,MEMU,4,591
+471,17800,Mewar Express,Express,2,575
+472,30353,Gatimaan Express,Superfast,1,626
+473,41428,Golden Temple Mail,Express,2,605
+474,45539,Mineral Transport,Goods,5,535
+475,28872,Agricultural Goods,Goods,5,404
+476,44611,Duronto Express,Superfast,1,517
+477,19526,Agricultural Goods,Goods,5,439
+478,32122,Ajmer-Jaipur Passenger,Passenger,3,660
+479,20810,Kota Express,Express,2,401
+480,13656,Limestone Special,Goods,5,442
+481,75262,Bharatpur MEMU,MEMU,4,445
+482,44050,Alwar MEMU,MEMU,4,514
+483,49454,Udaipur City Express,Express,2,516
+484,65883,Chittorgarh-Udaipur Passenger,Passenger,3,608
+485,50476,Steel Transport,Goods,5,482
+486,40282,Suvidha Express,Superfast,1,653
+487,12296,Iron Ore Express,Goods,5,560
+488,15189,Churu MEMU,MEMU,4,606
+489,75672,Jaipur-Delhi Passenger,Passenger,3,640
+490,81385,Industrial Freight,Goods,5,686
+491,76558,Raw Material Express,Goods,5,417
+492,54521,Petroleum Special,Goods,5,553
+493,45181,Alwar-Delhi Passenger,Passenger,3,624
+494,87464,Sikar MEMU,MEMU,4,652
+495,10655,Jodhpur Express,Express,2,584
+496,71085,Duronto Express,Superfast,1,428
+497,54194,Suvidha Express,Superfast,1,541
+498,59874,Fertilizer Goods,Goods,5,507
+499,55481,Chittorgarh-Udaipur Passenger,Passenger,3,540
+500,78363,Haridwar Mail,Express,2,621
